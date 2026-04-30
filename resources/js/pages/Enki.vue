@@ -2,7 +2,14 @@
 import { router, useHttp } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { star as skillStar } from '@/routes/enki/skill';
-import type { EnkiCategory, EnkiTint, EnkiAuthor, EnkiSkill, EnkiSkillSummary, EnkiFilters } from '@/types/enki';
+import type {
+    EnkiCategory,
+    EnkiTint,
+    EnkiAuthor,
+    EnkiSkill,
+    EnkiSkillSummary,
+    EnkiFilters,
+} from '@/types/enki';
 import AuthorModal from './enki/AuthorModal.vue';
 import DetailPane from './enki/DetailPane.vue';
 import FilterRail from './enki/FilterRail.vue';
@@ -46,6 +53,11 @@ watch(
 // ── Modal ────────────────────────────────────────────────────────────────────
 type Modal = null | 'submit' | 'edit' | { kind: 'author'; id: string };
 const modal = ref<Modal>(null);
+const authorModal = computed(() =>
+    modal.value && typeof modal.value === 'object' && modal.value.kind === 'author'
+        ? (modal.value as { kind: 'author'; id: string })
+        : null,
+);
 
 // ── Filter application ────────────────────────────────────────────────────────
 let debounceTimer: ReturnType<typeof setTimeout>;
@@ -56,28 +68,28 @@ function applyFilters(immediate = false) {
         const params: Record<string, string | number | undefined> = {};
 
         if (query.value) {
-params.q = query.value;
-}
+            params.q = query.value;
+        }
 
         if (category.value !== 'all') {
-params.category = category.value;
-}
+            params.category = category.value;
+        }
 
         if (sort.value !== 'recent') {
-params.sort = sort.value;
-}
+            params.sort = sort.value;
+        }
 
         if (showStarred.value) {
-params.starred = 1;
-}
+            params.starred = 1;
+        }
 
         if (showMySkills.value) {
-params.mySkills = 1;
-}
+            params.mySkills = 1;
+        }
 
         if (source.value !== 'all') {
-params.source = source.value;
-}
+            params.source = source.value;
+        }
 
         router.get(window.location.pathname, params, {
             only: ['skills', 'skillCounts', 'filters'],
@@ -95,10 +107,14 @@ params.source = source.value;
 }
 
 watch(query, () => applyFilters(false));
-watch([category, sort, showStarred, showMySkills, source], () => applyFilters(true));
+watch([category, sort, showStarred, showMySkills, source], () =>
+    applyFilters(true),
+);
 
 // ── Skill selection ───────────────────────────────────────────────────────────
-const selectedSlug = computed(() => props.selectedSkill?.slug ?? props.skills.data[0]?.slug ?? '');
+const selectedSlug = computed(
+    () => props.selectedSkill?.slug ?? props.skills.data[0]?.slug ?? '',
+);
 
 function selectSkill(slug: string) {
     router.visit('/enki/skills/' + slug + window.location.search, {
@@ -178,7 +194,12 @@ function toggleStar(slug: string) {
         v-if="modal === 'submit'"
         :categories="categories"
         @close="modal = null"
-        @imported="slug => { modal = null; selectSkill(slug); }"
+        @imported="
+            (slug) => {
+                modal = null;
+                selectSkill(slug);
+            }
+        "
     />
 
     <SubmitModal
@@ -186,13 +207,27 @@ function toggleStar(slug: string) {
         :categories="categories"
         :skill="selectedSkill"
         @close="modal = null"
-        @imported="slug => { modal = null; router.reload({ only: ['selectedSkill', 'skills', 'skillCounts'], reset: ['skills'] }); selectSkill(slug); }"
-        @deleted="() => { modal = null; router.visit('/enki'); }"
+        @imported="
+            (slug) => {
+                modal = null;
+                router.reload({
+                    only: ['selectedSkill', 'skills', 'skillCounts'],
+                    reset: ['skills'],
+                });
+                selectSkill(slug);
+            }
+        "
+        @deleted="
+            () => {
+                modal = null;
+                router.visit('/enki');
+            }
+        "
     />
 
     <AuthorModal
-        v-if="modal && typeof modal === 'object' && modal.kind === 'author'"
-        :authorId="(modal as { kind: 'author'; id: string }).id"
+        v-if="authorModal"
+        :authorId="authorModal.id"
         :authors="authors"
         :skills="skills.data"
         :tints="tints"

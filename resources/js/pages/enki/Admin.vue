@@ -18,10 +18,14 @@ defineProps<{
 }>();
 
 function updateRole(userId: number, role: string) {
-    router.patch(`/enki/admin/users/${userId}/role`, { role }, {
-        preserveState: true,
-        preserveScroll: true,
-    });
+    router.patch(
+        `/enki/admin/users/${userId}/role`,
+        { role },
+        {
+            preserveState: true,
+            preserveScroll: true,
+        },
+    );
 }
 
 function deleteUser(user: AdminUser) {
@@ -39,7 +43,10 @@ function deleteUser(user: AdminUser) {
     <div class="enki-admin">
         <div class="enki-admin-header">
             <h1 class="enki-admin-title">Users</h1>
-            <span class="enki-admin-count">{{ users.length }} {{ users.length === 1 ? 'user' : 'users' }}</span>
+            <span class="enki-admin-count"
+                >{{ users.length }}
+                {{ users.length === 1 ? 'user' : 'users' }}</span
+            >
         </div>
 
         <div class="enki-admin-table-wrap">
@@ -61,7 +68,13 @@ function deleteUser(user: AdminUser) {
                             <select
                                 class="enki-admin-select"
                                 :value="user.role"
-                                @change="updateRole(user.id, ($event.target as HTMLSelectElement).value)"
+                                @change="
+                                    updateRole(
+                                        user.id,
+                                        ($event.target as HTMLSelectElement)
+                                            .value,
+                                    )
+                                "
                             >
                                 <option v-for="r in roles" :key="r" :value="r">
                                     {{ r.charAt(0).toUpperCase() + r.slice(1) }}
@@ -76,8 +89,19 @@ function deleteUser(user: AdminUser) {
                                 title="Delete user"
                                 @click="deleteUser(user)"
                             >
-                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 4h12M5 4V3h6v1M6 7v5M10 7v5M3 4l1 9h8l1-9" />
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M2 4h12M5 4V3h6v1M6 7v5M10 7v5M3 4l1 9h8l1-9"
+                                    />
                                 </svg>
                             </button>
                         </td>

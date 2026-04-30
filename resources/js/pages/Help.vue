@@ -29,7 +29,9 @@ defineProps<{
                     </li>
                 </ul>
             </nav>
-            <p class="enki-settings-side-label" style="margin-top: 18px">Setup</p>
+            <p class="enki-settings-side-label" style="margin-top: 18px">
+                Setup
+            </p>
             <nav aria-label="Setup">
                 <ul class="enki-settings-nav">
                     <li>

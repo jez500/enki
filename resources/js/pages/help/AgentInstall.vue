@@ -71,8 +71,8 @@ async function copyPrompt() {
 
 async function copyToken() {
     if (!token.value) {
-return;
-}
+        return;
+    }
 
     await navigator.clipboard.writeText(token.value);
 }
@@ -108,11 +108,16 @@ async function regenerateToken() {
                     </li>
                 </ul>
             </nav>
-            <p class="enki-settings-side-label" style="margin-top: 18px">Setup</p>
+            <p class="enki-settings-side-label" style="margin-top: 18px">
+                Setup
+            </p>
             <nav aria-label="Setup">
                 <ul class="enki-settings-nav">
                     <li>
-                        <Link :href="agentInstall()" class="enki-navlink is-active">
+                        <Link
+                            :href="agentInstall()"
+                            class="enki-navlink is-active"
+                        >
                             Agent Install
                         </Link>
                     </li>
@@ -124,15 +129,17 @@ async function regenerateToken() {
             <div class="enki-md-body">
                 <h1>Agent Install</h1>
                 <p>
-                    Copy the prompt below and give it to any AI agent. It will download the
-                    <strong>enki</strong> skill, which in turn allows the agent to discover and
-                    install additional skills from this library in future sessions.
+                    Copy the prompt below and give it to any AI agent. It will
+                    download the
+                    <strong>enki</strong> skill, which in turn allows the agent
+                    to discover and install additional skills from this library
+                    in future sessions.
                 </p>
 
                 <h2>Your API Key</h2>
                 <p>
-                    This key authenticates the agent with the library on your behalf. Keep it
-                    confidential.
+                    This key authenticates the agent with the library on your
+                    behalf. Keep it confidential.
                 </p>
 
                 <div class="enki-agent-token-row">
@@ -141,7 +148,9 @@ async function regenerateToken() {
                             <span v-if="tokenVisible">{{ token }}</span>
                             <span v-else>{{ '•'.repeat(24) }}</span>
                         </template>
-                        <span v-else class="enki-agent-token-empty">No key generated yet</span>
+                        <span v-else class="enki-agent-token-empty"
+                            >No key generated yet</span
+                        >
                     </code>
                     <div class="enki-agent-token-actions">
                         <button
@@ -174,8 +183,8 @@ async function regenerateToken() {
                 <template v-if="token">
                     <h2>Install Prompt</h2>
                     <p>
-                        Copy this prompt in full and paste it at the start of a new agent
-                        conversation. The agent will handle the rest.
+                        Copy this prompt in full and paste it at the start of a
+                        new agent conversation. The agent will handle the rest.
                     </p>
 
                     <div class="enki-agent-prompt-wrap">

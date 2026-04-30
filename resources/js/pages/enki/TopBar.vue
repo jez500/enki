@@ -28,7 +28,12 @@ const authUser = computed(() => (page.props.auth as { user: User })?.user);
 const userInitials = computed(() => {
     const name = authUser.value?.name ?? '';
 
-    return name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
+    return name
+        .split(' ')
+        .map((n: string) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
 });
 const isAdmin = computed(() => authUser.value?.role === 'admin');
 
@@ -53,8 +58,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     <header class="enki-topbar">
         <Link href="/enki" class="enki-brand">
             <div class="enki-brand-mark">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-                    <path d="M4 7l8-4 8 4M4 7v10l8 4 8-4V7M4 7l8 4M20 7l-8 4M12 11v10" />
+                <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                >
+                    <path
+                        d="M4 7l8-4 8 4M4 7v10l8 4 8-4V7M4 7l8 4M20 7l-8 4M12 11v10"
+                    />
                 </svg>
             </div>
             <span class="enki-brand-name">enki</span>
@@ -62,7 +77,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         </Link>
 
         <div class="enki-search">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" style="opacity: 0.45">
+            <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                style="opacity: 0.45"
+            >
                 <circle cx="7" cy="7" r="4.5" />
                 <path d="M10.5 10.5L13 13" stroke-linecap="round" />
             </svg>
@@ -70,7 +93,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
                 ref="searchInput"
                 type="text"
                 :value="query"
-                @input="emit('update:query', ($event.target as HTMLInputElement).value)"
+                @input="
+                    emit(
+                        'update:query',
+                        ($event.target as HTMLInputElement).value,
+                    )
+                "
                 placeholder="Search 487 skills, tags, authors…"
                 spellcheck="false"
             />
@@ -78,21 +106,39 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         </div>
 
         <nav class="enki-topnav">
-            <button type="button" class="enki-navbtn enki-btn--ghost" @click="emit('submit')">Submit a skill</button>
+            <button
+                type="button"
+                class="enki-navbtn enki-btn--ghost"
+                @click="emit('submit')"
+            >
+                Submit a skill
+            </button>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
-                    <button type="button" class="enki-avatar" :title="(page.props.auth as any)?.user?.name ?? 'Account'">
+                    <button
+                        type="button"
+                        class="enki-avatar"
+                        :title="
+                            (page.props.auth as any)?.user?.name ?? 'Account'
+                        "
+                    >
                         {{ userInitials }}
                     </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" class="w-44">
                     <DropdownMenuItem v-if="isAdmin" as-child>
-                        <Link href="/enki/admin/users" class="block w-full cursor-pointer">
+                        <Link
+                            href="/enki/admin/users"
+                            class="block w-full cursor-pointer"
+                        >
                             Admin
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem as-child>
-                        <Link :href="profileEdit().url" class="block w-full cursor-pointer">
+                        <Link
+                            :href="profileEdit().url"
+                            class="block w-full cursor-pointer"
+                        >
                             Settings
                         </Link>
                     </DropdownMenuItem>

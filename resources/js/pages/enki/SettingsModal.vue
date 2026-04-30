@@ -17,16 +17,16 @@ const emit = defineEmits<{
 
 const accentPresets = [
     { name: 'Terracotta', value: '#c2603a' },
-    { name: 'Forest',     value: '#3d6b4a' },
-    { name: 'Indigo',     value: '#3d4f88' },
-    { name: 'Plum',       value: '#7a3d65' },
-    { name: 'Slate',      value: '#4a4a4a' },
+    { name: 'Forest', value: '#3d6b4a' },
+    { name: 'Indigo', value: '#3d4f88' },
+    { name: 'Plum', value: '#7a3d65' },
+    { name: 'Slate', value: '#4a4a4a' },
 ];
 
 function onKey(e: KeyboardEvent) {
     if (e.key === 'Escape') {
-emit('close');
-}
+        emit('close');
+    }
 }
 
 onMounted(() => window.addEventListener('keydown', onKey));
@@ -38,8 +38,21 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         <div class="enki-modal" @click.stop>
             <header class="enki-modal-head">
                 <h2>Settings</h2>
-                <button type="button" class="enki-modal-x" @click="emit('close')" aria-label="Close">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <button
+                    type="button"
+                    class="enki-modal-x"
+                    @click="emit('close')"
+                    aria-label="Close"
+                >
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                    >
                         <path d="M3 3l10 10M13 3L3 13" />
                     </svg>
                 </button>
@@ -53,7 +66,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
                             type="checkbox"
                             class="enki-toggle"
                             :checked="darkMode"
-                            @change="emit('update:darkMode', ($event.target as HTMLInputElement).checked)"
+                            @change="
+                                emit(
+                                    'update:darkMode',
+                                    ($event.target as HTMLInputElement).checked,
+                                )
+                            "
                         />
                     </label>
 
@@ -64,7 +82,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
                                 v-for="p in accentPresets"
                                 :key="p.value"
                                 type="button"
-                                :class="['enki-accent-swatch', { 'is-on': accent === p.value }]"
+                                :class="[
+                                    'enki-accent-swatch',
+                                    { 'is-on': accent === p.value },
+                                ]"
                                 :style="{ background: p.value }"
                                 :title="p.name"
                                 @click="emit('update:accent', p.value)"
@@ -72,59 +93,65 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
                         </div>
                     </div>
 
-<!--                    &lt;!&ndash; Install scope &ndash;&gt;-->
-<!--                    <fieldset class="enki-field" style="border: none; padding: 0; margin: 0;">-->
-<!--                        <span>Default install scope</span>-->
-<!--                        <div class="enki-radiogroup">-->
-<!--                            <label-->
-<!--                                v-for="o in ['workspace', 'project', 'agent']"-->
-<!--                                :key="o"-->
-<!--                                :class="['enki-radiochip', { 'is-on': prefs.scope === o }]"-->
-<!--                            >-->
-<!--                                <input-->
-<!--                                    type="radio"-->
-<!--                                    name="scope"-->
-<!--                                    :value="o"-->
-<!--                                    :checked="prefs.scope === o"-->
-<!--                                    @change="emit('update:prefs', { ...prefs, scope: o as EnkiPrefs['scope'] })"-->
-<!--                                />-->
-<!--                                <span class="enki-radiochip-label" style="text-transform: capitalize">{{ o }}</span>-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                    </fieldset>-->
+                    <!--                    &lt;!&ndash; Install scope &ndash;&gt;-->
+                    <!--                    <fieldset class="enki-field" style="border: none; padding: 0; margin: 0;">-->
+                    <!--                        <span>Default install scope</span>-->
+                    <!--                        <div class="enki-radiogroup">-->
+                    <!--                            <label-->
+                    <!--                                v-for="o in ['workspace', 'project', 'agent']"-->
+                    <!--                                :key="o"-->
+                    <!--                                :class="['enki-radiochip', { 'is-on': prefs.scope === o }]"-->
+                    <!--                            >-->
+                    <!--                                <input-->
+                    <!--                                    type="radio"-->
+                    <!--                                    name="scope"-->
+                    <!--                                    :value="o"-->
+                    <!--                                    :checked="prefs.scope === o"-->
+                    <!--                                    @change="emit('update:prefs', { ...prefs, scope: o as EnkiPrefs['scope'] })"-->
+                    <!--                                />-->
+                    <!--                                <span class="enki-radiochip-label" style="text-transform: capitalize">{{ o }}</span>-->
+                    <!--                            </label>-->
+                    <!--                        </div>-->
+                    <!--                    </fieldset>-->
 
-<!--                    <label class="enki-field enki-field&#45;&#45;row">-->
-<!--                        <span>Auto-update skills</span>-->
-<!--                        <input-->
-<!--                            type="checkbox"-->
-<!--                            class="enki-toggle"-->
-<!--                            :checked="prefs.autoUpdate"-->
-<!--                            @change="emit('update:prefs', { ...prefs, autoUpdate: ($event.target as HTMLInputElement).checked })"-->
-<!--                        />-->
-<!--                    </label>-->
-<!--                    <label class="enki-field enki-field&#45;&#45;row">-->
-<!--                        <span>Show experimental skills</span>-->
-<!--                        <input-->
-<!--                            type="checkbox"-->
-<!--                            class="enki-toggle"-->
-<!--                            :checked="prefs.showExperimental"-->
-<!--                            @change="emit('update:prefs', { ...prefs, showExperimental: ($event.target as HTMLInputElement).checked })"-->
-<!--                        />-->
-<!--                    </label>-->
-<!--                    <label class="enki-field enki-field&#45;&#45;row">-->
-<!--                        <span>Notify me on updates I depend on</span>-->
-<!--                        <input-->
-<!--                            type="checkbox"-->
-<!--                            class="enki-toggle"-->
-<!--                            :checked="prefs.notify"-->
-<!--                            @change="emit('update:prefs', { ...prefs, notify: ($event.target as HTMLInputElement).checked })"-->
-<!--                        />-->
-<!--                    </label>-->
+                    <!--                    <label class="enki-field enki-field&#45;&#45;row">-->
+                    <!--                        <span>Auto-update skills</span>-->
+                    <!--                        <input-->
+                    <!--                            type="checkbox"-->
+                    <!--                            class="enki-toggle"-->
+                    <!--                            :checked="prefs.autoUpdate"-->
+                    <!--                            @change="emit('update:prefs', { ...prefs, autoUpdate: ($event.target as HTMLInputElement).checked })"-->
+                    <!--                        />-->
+                    <!--                    </label>-->
+                    <!--                    <label class="enki-field enki-field&#45;&#45;row">-->
+                    <!--                        <span>Show experimental skills</span>-->
+                    <!--                        <input-->
+                    <!--                            type="checkbox"-->
+                    <!--                            class="enki-toggle"-->
+                    <!--                            :checked="prefs.showExperimental"-->
+                    <!--                            @change="emit('update:prefs', { ...prefs, showExperimental: ($event.target as HTMLInputElement).checked })"-->
+                    <!--                        />-->
+                    <!--                    </label>-->
+                    <!--                    <label class="enki-field enki-field&#45;&#45;row">-->
+                    <!--                        <span>Notify me on updates I depend on</span>-->
+                    <!--                        <input-->
+                    <!--                            type="checkbox"-->
+                    <!--                            class="enki-toggle"-->
+                    <!--                            :checked="prefs.notify"-->
+                    <!--                            @change="emit('update:prefs', { ...prefs, notify: ($event.target as HTMLInputElement).checked })"-->
+                    <!--                        />-->
+                    <!--                    </label>-->
                 </div>
             </div>
             <footer class="enki-modal-foot">
                 <div class="enki-modal-actions">
-                    <button type="button" class="enki-btn enki-btn--primary" @click="emit('close')">Done</button>
+                    <button
+                        type="button"
+                        class="enki-btn enki-btn--primary"
+                        @click="emit('close')"
+                    >
+                        Done
+                    </button>
                 </div>
             </footer>
         </div>

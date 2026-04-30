@@ -74,7 +74,9 @@ import { store } from '@/routes/register';
                         </div>
 
                         <div class="grid gap-2">
-                            <Label for="password_confirmation">Confirm password</Label>
+                            <Label for="password_confirmation"
+                                >Confirm password</Label
+                            >
                             <PasswordInput
                                 id="password_confirmation"
                                 required
@@ -83,7 +85,9 @@ import { store } from '@/routes/register';
                                 name="password_confirmation"
                                 placeholder="Confirm password"
                             />
-                            <InputError :message="errors.password_confirmation" />
+                            <InputError
+                                :message="errors.password_confirmation"
+                            />
                         </div>
 
                         <Button

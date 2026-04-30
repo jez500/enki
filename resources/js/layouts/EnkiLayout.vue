@@ -9,15 +9,21 @@ function applyTheme() {
     const el = appRef.value;
 
     if (!el) {
-return;
-}
+        return;
+    }
 
     el.setAttribute('data-theme', darkMode.value ? 'dark' : 'light');
     const baseBg = darkMode.value ? '#16140f' : '#faf8f3';
     const baseInk = darkMode.value ? '#f0ead8' : '#1a1814';
     el.style.setProperty('--accent', accent.value);
-    el.style.setProperty('--accent-soft', `color-mix(in oklch, ${accent.value} ${darkMode.value ? 28 : 22}%, ${baseBg})`);
-    el.style.setProperty('--accent-ink', `color-mix(in oklch, ${accent.value} 78%, ${baseInk})`);
+    el.style.setProperty(
+        '--accent-soft',
+        `color-mix(in oklch, ${accent.value} ${darkMode.value ? 28 : 22}%, ${baseBg})`,
+    );
+    el.style.setProperty(
+        '--accent-ink',
+        `color-mix(in oklch, ${accent.value} 78%, ${baseInk})`,
+    );
 }
 
 watch(accent, (v) => localStorage.setItem('enki-accent', v));
@@ -31,7 +37,11 @@ provide('enkiAccent', accent);
 </script>
 
 <template>
-    <div ref="appRef" class="enki-app" :data-theme="darkMode ? 'dark' : 'light'">
+    <div
+        ref="appRef"
+        class="enki-app"
+        :data-theme="darkMode ? 'dark' : 'light'"
+    >
         <slot />
     </div>
 </template>
@@ -39,7 +49,9 @@ provide('enkiAccent', accent);
 <style>
 @import '../../css/enki.css';
 
-html, body, #app {
+html,
+body,
+#app {
     height: 100%;
     margin: 0;
     padding: 0;

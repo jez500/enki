@@ -26,16 +26,29 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
                         <Link
                             :href="item.href"
                             class="enki-navlink"
-                            :class="{ 'is-active': isCurrentOrParentUrl(item.href) }"
+                            :class="{
+                                'is-active': isCurrentOrParentUrl(item.href),
+                            }"
                         >
                             {{ item.title }}
                         </Link>
                     </li>
                 </ul>
             </nav>
-            <p class="enki-settings-side-label" style="margin-top: 18px">Back</p>
+            <p class="enki-settings-side-label" style="margin-top: 18px">
+                Back
+            </p>
             <Link href="/enki" class="enki-settings-back">
-                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
                     <path d="M10 3L5 8l5 5" />
                 </svg>
                 Back to Library
