@@ -1,10 +1,5 @@
 # ─── Stage 1: Production PHP vendor ───────────────────────────────────────────
-FROM php:8.3-alpine AS php-vendor
-
-RUN apk add --no-cache sqlite-dev libzip-dev oniguruma-dev unzip \
-    && docker-php-ext-install pdo pdo_sqlite mbstring bcmath zip
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+FROM jez500/enki-base:php-builder AS php-vendor
 
 WORKDIR /app
 
@@ -19,22 +14,7 @@ RUN composer install \
 # ─── Stage 2: Frontend assets ─────────────────────────────────────────────────
 # Uses PHP as base so `php artisan wayfinder:generate` works during npm build.
 # Installs dev dependencies (laravel/boost etc.) needed for artisan to boot.
-FROM php:8.3-alpine AS frontend
-
-RUN apk add --no-cache \
-        nodejs \
-        npm \
-        sqlite-dev \
-        libzip-dev \
-        oniguruma-dev \
-        unzip \
-    && docker-php-ext-install \
-        pdo \
-        pdo_sqlite \
-        mbstring \
-        zip
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+FROM jez500/enki-base:frontend-builder AS frontend
 
 WORKDIR /app
 
@@ -69,41 +49,7 @@ COPY public/ public/
 RUN npm run build
 
 # ─── Stage 3: Runtime ─────────────────────────────────────────────────────────
-FROM php:8.3-fpm-alpine
-
-# System dependencies and PHP extensions
-RUN apk add --no-cache \
-        nginx \
-        supervisor \
-        sqlite \
-        sqlite-dev \
-        libzip-dev \
-        oniguruma-dev \
-        curl \
-        unzip \
-    && docker-php-ext-install \
-        pdo \
-        pdo_sqlite \
-        mbstring \
-        bcmath \
-        zip \
-        opcache \
-    && docker-php-ext-enable opcache
-
-# OPcache tuning for production
-RUN { \
-    echo 'opcache.enable=1'; \
-    echo 'opcache.memory_consumption=128'; \
-    echo 'opcache.max_accelerated_files=10000'; \
-    echo 'opcache.validate_timestamps=0'; \
-    echo 'opcache.fast_shutdown=1'; \
-} > /usr/local/etc/php/conf.d/opcache.ini
-
-# Pass Docker env vars through to PHP-FPM worker processes
-RUN echo "clear_env = no" >> /usr/local/etc/php-fpm.d/www.conf
-
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+FROM jez500/enki-base:runtime
 
 WORKDIR /var/www
 
