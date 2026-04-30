@@ -8,9 +8,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import type { User } from '@/types';
 import { logout } from '@/routes';
 import { edit as profileEdit } from '@/routes/profile';
-import type { User } from '@/types';
 
 defineOptions({ inheritAttrs: false });
 

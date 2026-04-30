@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { router, useHttp } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
-import { star as skillStar } from '@/routes/enki/skill';
 import type {
     EnkiCategory,
     EnkiTint,
@@ -10,6 +9,7 @@ import type {
     EnkiSkillSummary,
     EnkiFilters,
 } from '@/types/enki';
+import { star as skillStar } from '@/routes/enki/skill';
 import AuthorModal from './enki/AuthorModal.vue';
 import DetailPane from './enki/DetailPane.vue';
 import FilterRail from './enki/FilterRail.vue';
