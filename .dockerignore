@@ -6,3 +6,4 @@ vendor/
 storage/logs/*.log
 public/build/
 *.md
+bootstrap/cache/
