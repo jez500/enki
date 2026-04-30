@@ -1,22 +1,33 @@
 #!/usr/bin/env bash
-# Builds and pushes the jez500/enki-base images.
+# Builds and pushes the jez500/enki-base images for linux/amd64 and linux/arm64.
 # Run this whenever system-level dependencies change (apk packages, PHP extensions).
 set -euo pipefail
 
 REPO="jez500/enki-base"
+PLATFORMS="linux/amd64,linux/arm64"
 
-echo "Building ${REPO}:php-builder …"
-docker build -f Dockerfile.base --target php-builder -t "${REPO}:php-builder" .
+docker buildx build \
+    -f Dockerfile.base \
+    --platform "${PLATFORMS}" \
+    --target php-builder \
+    -t "${REPO}:php-builder" \
+    --push \
+    .
 
-echo "Building ${REPO}:frontend-builder …"
-docker build -f Dockerfile.base --target frontend-builder -t "${REPO}:frontend-builder" .
+docker buildx build \
+    -f Dockerfile.base \
+    --platform "${PLATFORMS}" \
+    --target frontend-builder \
+    -t "${REPO}:frontend-builder" \
+    --push \
+    .
 
-echo "Building ${REPO}:runtime …"
-docker build -f Dockerfile.base --target runtime -t "${REPO}:runtime" .
-
-echo "Pushing …"
-docker push "${REPO}:php-builder"
-docker push "${REPO}:frontend-builder"
-docker push "${REPO}:runtime"
+docker buildx build \
+    -f Dockerfile.base \
+    --platform "${PLATFORMS}" \
+    --target runtime \
+    -t "${REPO}:runtime" \
+    --push \
+    .
 
 echo "Done."

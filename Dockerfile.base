@@ -7,43 +7,26 @@ RUN apk add --no-cache sqlite-dev libzip-dev oniguruma-dev unzip \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # ─── Base image: Frontend builder (PHP + Node for Vite/Wayfinder builds) ──────
-FROM php:8.3-alpine AS frontend-builder
+# Extends php-builder so PHP extensions don't need to be recompiled.
+FROM php-builder AS frontend-builder
 
-RUN apk add --no-cache \
-        nodejs \
-        npm \
-        sqlite-dev \
-        libzip-dev \
-        oniguruma-dev \
-        unzip \
-    && docker-php-ext-install \
-        pdo \
-        pdo_sqlite \
-        mbstring \
-        zip
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN apk add --no-cache nodejs npm
 
 # ─── Base image: Runtime (PHP-FPM + nginx + supervisor) ───────────────────────
+# Copies pre-compiled extensions from php-builder to avoid QEMU compilation.
 FROM php:8.3-fpm-alpine AS runtime
 
 RUN apk add --no-cache \
         nginx \
         supervisor \
         sqlite \
-        sqlite-dev \
-        libzip-dev \
-        oniguruma-dev \
-        curl \
-        unzip \
-    && docker-php-ext-install \
-        pdo \
-        pdo_sqlite \
-        mbstring \
-        bcmath \
-        zip \
-        opcache \
-    && docker-php-ext-enable opcache
+        libzip \
+        oniguruma \
+        curl
+
+# Reuse extensions compiled in php-builder (same PHP 8.3 ABI)
+COPY --from=php-builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+RUN docker-php-ext-enable pdo pdo_sqlite mbstring bcmath zip opcache
 
 RUN { \
     echo 'opcache.enable=1'; \
