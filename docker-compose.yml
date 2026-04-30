@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - enki_database:/var/www/database
+      - enki_storage:/var/www/storage
+    environment:
+      APP_URL: http://localhost:8080
+      # ── Google SSO (remove to use email/password auth) ──────────────────────
+      # GOOGLE_CLIENT_ID: your-client-id.apps.googleusercontent.com
+      # GOOGLE_CLIENT_SECRET: your-client-secret
+      # GOOGLE_REDIRECT_URI: http://localhost:8080/auth/google/callback
+      # GOOGLE_ALLOWED_DOMAINS: yourcompany.com   # comma-separated, leave unset to allow all
+      # ── GitHub integration (enables importing skills from GitHub repos) ──────
+      # GITHUB_TOKEN: your-personal-access-token
+
+volumes:
+  enki_database:
+  enki_storage:

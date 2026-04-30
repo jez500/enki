@@ -1,0 +1,8 @@
+node_modules/
+vendor/
+.env
+.git/
+.github/
+storage/logs/*.log
+public/build/
+*.md

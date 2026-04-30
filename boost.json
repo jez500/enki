@@ -1,0 +1,29 @@
+{
+    "agents": [
+        "claude_code",
+        "codex",
+        "opencode",
+        "junie"
+    ],
+    "cloud": false,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "sail": false,
+    "skills": [
+        "fortify-development",
+        "laravel-best-practices",
+        "socialite-development",
+        "wayfinder-development",
+        "pest-testing",
+        "inertia-vue-development",
+        "tailwindcss-development",
+        "complexity-guardrails",
+        "laravel-config-env-storage",
+        "laravel-custom-helpers",
+        "laravel-iterating-on-code",
+        "laravel-laravel-prompting-patterns",
+        "laravel-quality-checks",
+        "shadcn-vue"
+    ]
+}
