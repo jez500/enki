@@ -522,7 +522,7 @@ function fileIconFill(kind: string) {
                     >
                 </div>
                 <div class="enki-install-cmd">
-                    <span class="enki-install-prompt">$</span>
+                    <span class="enki-install-prompt">/</span>
                     <span class="enki-install-text">{{ installCmd }}</span>
                     <button
                         type="button"
