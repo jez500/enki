@@ -9,13 +9,13 @@ import type {
     EnkiSkillSummary,
     EnkiFilters,
 } from '@/types/enki';
-import { star as skillStar } from '@/routes/enki/skill';
 import AuthorModal from './enki/AuthorModal.vue';
 import DetailPane from './enki/DetailPane.vue';
 import FilterRail from './enki/FilterRail.vue';
 import SkillList from './enki/SkillList.vue';
 import SubmitModal from './enki/SubmitModal.vue';
 import TopBar from './enki/TopBar.vue';
+import { star as skillStar } from '@/routes/enki/skill';
 
 const props = defineProps<{
     categories: EnkiCategory[];
