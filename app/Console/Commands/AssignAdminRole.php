@@ -19,20 +19,20 @@ class AssignAdminRole extends Command
         $user = User::where('email', $email)->first();
 
         if (! $user) {
-            $this->error("No user found with email: {$email}");
+            $this->error('No user found with email: '.$email);
 
             return self::FAILURE;
         }
 
         if ($user->role === UserRole::Admin) {
-            $this->info("{$user->name} ({$email}) is already an admin.");
+            $this->info(sprintf('%s (%s) is already an admin.', $user->name, $email));
 
             return self::SUCCESS;
         }
 
         $user->update(['role' => UserRole::Admin]);
 
-        $this->info("✓ {$user->name} ({$email}) has been assigned the admin role.");
+        $this->info(sprintf('✓ %s (%s) has been assigned the admin role.', $user->name, $email));
 
         return self::SUCCESS;
     }

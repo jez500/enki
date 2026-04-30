@@ -26,7 +26,9 @@ const initials = computed(() =>
 );
 
 function onKey(e: KeyboardEvent) {
-    if (e.key === 'Escape') emit('close');
+    if (e.key === 'Escape') {
+emit('close');
+}
 }
 
 onMounted(() => window.addEventListener('keydown', onKey));

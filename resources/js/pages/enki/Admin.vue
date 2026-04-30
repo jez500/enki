@@ -12,7 +12,7 @@ type AdminUser = {
     createdAt: string;
 };
 
-const props = defineProps<{
+defineProps<{
     users: AdminUser[];
     roles: string[];
 }>();
@@ -28,6 +28,7 @@ function deleteUser(user: AdminUser) {
     if (!confirm(`Delete ${user.name}? This cannot be undone.`)) {
         return;
     }
+
     router.delete(`/enki/admin/users/${user.id}`, {
         preserveScroll: true,
     });

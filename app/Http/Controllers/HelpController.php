@@ -30,7 +30,7 @@ class HelpController extends Controller
     public static function listDocs(): Collection
     {
         return collect(glob(base_path('docs').'/*.md'))
-            ->map(function (string $path) {
+            ->map(function (string $path): array {
                 $slug = pathinfo($path, PATHINFO_FILENAME);
 
                 return [
@@ -38,7 +38,7 @@ class HelpController extends Controller
                     'title' => ucwords(str_replace(['_', '-'], ' ', $slug)),
                 ];
             })
-            ->sort(fn (array $a, array $b) => match (true) {
+            ->sort(fn (array $a, array $b): int => match (true) {
                 $a['slug'] === 'README' => -1,
                 $b['slug'] === 'README' => 1,
                 default => strcmp($a['title'], $b['title']),

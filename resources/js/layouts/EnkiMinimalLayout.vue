@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
+import { computed, onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,7 +20,11 @@ const appRef = useTemplateRef<HTMLDivElement>('appRef');
 
 function applyTheme() {
     const el = appRef.value;
-    if (!el) return;
+
+    if (!el) {
+return;
+}
+
     el.setAttribute('data-theme', darkMode.value ? 'dark' : 'light');
     const baseBg = darkMode.value ? '#16140f' : '#faf8f3';
     const baseInk = darkMode.value ? '#f0ead8' : '#1a1814';
@@ -42,6 +46,7 @@ const page = usePage();
 const authUser = computed(() => (page.props.auth as { user: User })?.user);
 const userInitials = computed(() => {
     const name = authUser.value?.name ?? '';
+
     return name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
 });
 const isAdmin = computed(() => authUser.value?.role === 'admin');

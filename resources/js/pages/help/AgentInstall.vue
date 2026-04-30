@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
 import { Head, Link, useHttp } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { help } from '@/routes';
 import { agentInstall } from '@/routes/help';
 import { token as tokenRoute } from '@/routes/help/agent-install';
-import { help } from '@/routes';
 
 const props = defineProps<{
     docs: { slug: string; title: string }[];
@@ -19,6 +19,7 @@ const http = useHttp();
 
 const prompt = computed(() => {
     const key = token.value ?? '<your-api-key>';
+
     return `\
 You have been granted access to our team's Enki skills library — a curated collection of AI agent skills.
 
@@ -69,12 +70,16 @@ async function copyPrompt() {
 }
 
 async function copyToken() {
-    if (!token.value) return;
+    if (!token.value) {
+return;
+}
+
     await navigator.clipboard.writeText(token.value);
 }
 
 async function regenerateToken() {
     regenerating.value = true;
+
     try {
         const res = await http.post(tokenRoute().url);
         token.value = (res as any).api_token ?? token.value;

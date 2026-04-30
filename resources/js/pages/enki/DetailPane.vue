@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { EnkiSkill, EnkiAuthor, EnkiTint, EnkiActivityEntry } from '@/types/enki';
 import { formatTitle } from '@/lib/utils';
+import type { EnkiSkill, EnkiAuthor, EnkiTint } from '@/types/enki';
 import Monogram from './Monogram.vue';
 
 const props = defineProps<{
@@ -25,11 +25,13 @@ const syncError = ref<string | null>(null);
 async function syncSkill() {
     syncing.value = true;
     syncError.value = null;
+
     try {
         const res = await fetch(`/enki/skills/${encodeURIComponent(props.skill.slug)}/sync`, {
             method: 'POST',
             headers: { 'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '', 'Accept': 'application/json' },
         });
+
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
             syncError.value = body.message ?? 'Sync failed.';
@@ -59,9 +61,13 @@ const installCmd = computed(() => `enki add ${props.skill.slug}`);
 const summaryExpanded = ref(false);
 const summaryTruncated = computed(() => props.skill.summary.length > 150);
 const summaryDisplay = computed(() => {
-    if (summaryExpanded.value || !summaryTruncated.value) return props.skill.summary;
+    if (summaryExpanded.value || !summaryTruncated.value) {
+return props.skill.summary;
+}
+
     const cut = props.skill.summary.slice(0, 150);
     const lastSpace = cut.lastIndexOf(' ');
+
     return lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
 });
 
@@ -102,30 +108,27 @@ interface FlatItem {
 
 function buildTree(files: typeof props.skill.files): TreeNode[] {
     const root: TreeNode[] = [];
+
     for (const file of files) {
         const parts = file.path.split('/');
         let nodes = root;
+
         for (let i = 0; i < parts.length - 1; i++) {
             const dirPath = parts.slice(0, i + 1).join('/');
             let dir = nodes.find((n) => n.isDir && n.name === parts[i]);
+
             if (!dir) {
                 dir = { name: parts[i], path: dirPath, isDir: true, children: [] };
                 nodes.push(dir);
             }
+
             nodes = dir.children!;
         }
+
         nodes.push({ name: parts[parts.length - 1], path: file.path, isDir: false, size: file.size, kind: file.kind });
     }
-    return root;
-}
 
-function allDirPaths(files: typeof props.skill.files): Set<string> {
-    const dirs = new Set<string>();
-    for (const file of files) {
-        const parts = file.path.split('/');
-        for (let i = 1; i < parts.length; i++) dirs.add(parts.slice(0, i).join('/'));
-    }
-    return dirs;
+    return root;
 }
 
 const expandedDirs = ref<Set<string>>(new Set());
@@ -133,15 +136,20 @@ const fileTree = computed(() => buildTree(props.skill.files));
 
 function flattenTree(nodes: TreeNode[], depth = 0): FlatItem[] {
     const result: FlatItem[] = [];
+
     for (const node of nodes) {
         if (node.isDir) {
             const isExpanded = expandedDirs.value.has(node.path);
             result.push({ name: node.name, path: node.path, isDir: true, depth, hasChildren: !!node.children?.length, isExpanded });
-            if (isExpanded) result.push(...flattenTree(node.children ?? [], depth + 1));
+
+            if (isExpanded) {
+result.push(...flattenTree(node.children ?? [], depth + 1));
+}
         } else {
             result.push({ name: node.name, path: node.path, isDir: false, depth, size: node.size, kind: node.kind, hasChildren: false, isExpanded: false });
         }
     }
+
     return result;
 }
 
@@ -149,7 +157,13 @@ const fileTreeItems = computed(() => flattenTree(fileTree.value));
 
 function toggleDir(path: string) {
     const next = new Set(expandedDirs.value);
-    if (next.has(path)) { next.delete(path); } else { next.add(path); }
+
+    if (next.has(path)) {
+ next.delete(path); 
+} else {
+ next.add(path); 
+}
+
     expandedDirs.value = next;
 }
 
@@ -159,21 +173,32 @@ const openFile = computed(() => props.skill.files.find((f) => f.path === openFil
 
 const filePreview = computed(() => {
     const file = openFile.value;
-    if (!file) return '';
-    if (file.content != null) return file.content;
+
+    if (!file) {
+return '';
+}
+
+    if (file.content != null) {
+return file.content;
+}
+
     // Mock previews for internal skills (no stored content)
     const basename = file.path.split('/').pop() ?? file.path;
+
     if (basename === 'skill.yaml') {
         return `name: ${props.skill.name}\nslug: ${props.skill.slug}\nversion: ${props.skill.version}\nowner: ${props.skill.author}\n\ninputs:\n  goal: string\n  context: string[]\n  schema: object?\n\noutputs:\n  result: object\n  trace: step[]\n\nruntime:\n  model: claude-sonnet-4.5\n  temperature: 0\n  max_steps: 12\n`;
     }
+
     if (file.kind === 'json') {
         return `{\n  "skill": "${props.skill.slug}",\n  "version": "${props.skill.version}",\n  "example": {\n    "goal": "Summarize the attached thread",\n    "context": ["thread:Q3-launch"]\n  },\n  "expected": {\n    "summary": "…",\n    "decisions": [],\n    "owners": []\n  }\n}`;
     }
+
     if (file.kind === 'jsonl') {
         return Array.from({ length: 6 })
             .map((_, i) => `{"id":"case-${i + 1}","input":{"goal":"…"},"expected":{"score":${(0.8 + i * 0.02).toFixed(2)}}}`)
             .join('\n');
     }
+
     return `Error loading: ${file.path}`;
 });
 
@@ -197,23 +222,15 @@ function eventIcon(event: string): string {
         deleted: 'M4 8h8M3 4l10 8M3 12l10-8',
         restored: 'M3 8c0-2.8 2.2-5 5-5s5 2.2 5 5-2.2 5-5 5M8 6v2l1.5 1.5',
     };
+
     return icons[event] ?? 'M8 8h.01';
-}
-
-// ── Code block copy ──────────────────────────────────────────────────────────
-
-const copiedCode = ref<string | null>(null);
-
-function copyCode(text: string) {
-    navigator.clipboard?.writeText(text).catch(() => {});
-    copiedCode.value = text;
-    setTimeout(() => (copiedCode.value = null), 1400);
 }
 
 // ── File icon ────────────────────────────────────────────────────────────────
 
 function fileIconFill(kind: string) {
     const fills: Record<string, string> = { md: '#d4cfbf', json: '#cfc7af', yaml: '#c8c0a4', jsonl: '#cfc7af' };
+
     return fills[kind] ?? '#dcd6c5';
 }
 </script>

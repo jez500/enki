@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Skill;
+use App\Models\SkillChangelogEntry;
 use App\Services\GitHubSkillSync;
 use App\Services\SkillArchiveParser;
 use App\Services\SkillContent;
@@ -18,9 +19,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-use Spatie\Activitylog\Models\Activity;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Activitylog\Models\Activity;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EnkiController extends Controller
@@ -75,7 +76,7 @@ class EnkiController extends Controller
         );
 
         $tags = array_values(array_filter(
-            array_map('trim', explode(',', $request->input('tags', '')))
+            array_map(trim(...), explode(',', (string) $request->input('tags', '')))
         ));
 
         $skill = Skill::create([
@@ -85,7 +86,7 @@ class EnkiController extends Controller
             'author_id' => $author->id,
             'version' => $parsed['version'] ?? '1.0.0',
             'installs' => 0,
-            'monogram_tint' => rand(0, 5),
+            'monogram_tint' => random_int(0, 5),
             'tags' => count($tags) ? $tags : ($parsed['tags'] ?? []),
             'readme' => $parsed['readme'] ?? '',
             'usage' => '',
@@ -118,9 +119,7 @@ class EnkiController extends Controller
 
         try {
             $skill = app(GitHubSkillSync::class)->import($request->github_url, auth()->id());
-        } catch (\InvalidArgumentException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
-        } catch (\RuntimeException $e) {
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
@@ -154,7 +153,7 @@ class EnkiController extends Controller
         }
 
         $tags = array_values(array_filter(
-            array_map('trim', explode(',', $request->input('tags', '')))
+            array_map(trim(...), explode(',', (string) $request->input('tags', '')))
         ));
 
         $skill->fill([
@@ -165,8 +164,9 @@ class EnkiController extends Controller
             'visibility' => $request->visibility,
         ]);
         if ($parsed) {
-            $skill->readme = $parsed['readme'] ?? $skill->readme;
+            $skill->readme = $parsed['readme'];
         }
+
         $skill->save();
 
         $category = Category::where('slug', $request->category)->first();
@@ -217,8 +217,8 @@ class EnkiController extends Controller
 
         try {
             app(GitHubSkillSync::class)->sync($skill);
-        } catch (\RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+        } catch (\RuntimeException $runtimeException) {
+            return response()->json(['message' => $runtimeException->getMessage()], 422);
         }
 
         return response()->json($this->transformSkillFull($skill));
@@ -247,12 +247,14 @@ class EnkiController extends Controller
         if ($zip->open($tmpPath, \ZipArchive::OVERWRITE) !== true) {
             abort(500, 'Could not create zip archive.');
         }
+
         foreach ($files as $file) {
             $raw = $content->read($file['path']);
             if ($raw !== null) {
                 $zip->addFromString($file['path'], $raw);
             }
         }
+
         $zip->close();
 
         $filename = str_replace('/', '-', $skill->slug).'.zip';
@@ -282,7 +284,7 @@ class EnkiController extends Controller
         $matches = $virtual->matchesFilters($filters);
 
         $items = $paginator->getCollection()
-            ->map(fn (Skill $s) => $this->transformApiSkillSummary($s));
+            ->map(fn (Skill $s): array => $this->transformApiSkillSummary($s));
 
         if ($matches && $paginator->currentPage() === 1) {
             $items->push($virtual->toApiSummary());
@@ -352,7 +354,7 @@ class EnkiController extends Controller
             'authors' => $this->authorData(),
             'filters' => $filters,
             'skillCounts' => $this->skillCounts($user, $filters),
-            'skills' => Inertia::scroll(fn () => $this->buildSkillsPage($user, $filters)),
+            'skills' => Inertia::scroll(fn (): LengthAwarePaginator => $this->buildSkillsPage($user, $filters)),
         ];
     }
 
@@ -363,7 +365,7 @@ class EnkiController extends Controller
         $matches = $virtual->matchesFilters($filters);
 
         $items = $paginator->getCollection()
-            ->map(fn (Skill $s) => $this->transformSkillSummary($s));
+            ->map(fn (Skill $s): array => $this->transformSkillSummary($s));
 
         if ($matches && $paginator->onLastPage()) {
             $items->push($virtual->toWebSummary());
@@ -393,6 +395,7 @@ class EnkiController extends Controller
         ];
     }
 
+    /** @return Builder<Skill> */
     private function buildSkillQuery(mixed $user, array $filters): Builder
     {
         return Skill::with(['author', 'categories', 'createdBy'])
@@ -402,10 +405,10 @@ class EnkiController extends Controller
                 ->where('visibility', 'public')
                 ->orWhere(fn ($q2) => $q2->where('visibility', 'private')->where('created_by_user_id', $user->id))
             )
-            ->when($filters['q'], fn ($b, $q) => $b->where(fn ($b2) => $b2->where('name', 'like', "%{$q}%")
-                ->orWhere('slug', 'like', "%{$q}%")
-                ->orWhere('summary', 'like', "%{$q}%")
-                ->orWhere('tags', 'like', "%{$q}%")
+            ->when($filters['q'], fn ($b, $q) => $b->where(fn ($b2) => $b2->where('name', 'like', sprintf('%%%s%%', $q))
+                ->orWhere('slug', 'like', sprintf('%%%s%%', $q))
+                ->orWhere('summary', 'like', sprintf('%%%s%%', $q))
+                ->orWhere('tags', 'like', sprintf('%%%s%%', $q))
             ))
             ->when($filters['category'] !== 'all', fn ($b) => $b->whereHas('categories', fn ($q) => $q->where('slug', $filters['category']))
             )
@@ -427,10 +430,10 @@ class EnkiController extends Controller
                 ->where('visibility', 'public')
                 ->orWhere(fn ($q2) => $q2->where('visibility', 'private')->where('created_by_user_id', $user->id))
             )
-            ->when($filters['q'], fn ($b, $q) => $b->where(fn ($b2) => $b2->where('name', 'like', "%{$q}%")
-                ->orWhere('slug', 'like', "%{$q}%")
-                ->orWhere('summary', 'like', "%{$q}%")
-                ->orWhere('tags', 'like', "%{$q}%")
+            ->when($filters['q'], fn ($b, $q) => $b->where(fn ($b2) => $b2->where('name', 'like', sprintf('%%%s%%', $q))
+                ->orWhere('slug', 'like', sprintf('%%%s%%', $q))
+                ->orWhere('summary', 'like', sprintf('%%%s%%', $q))
+                ->orWhere('tags', 'like', sprintf('%%%s%%', $q))
             ))
             ->when($filters['starred'], fn ($b) => $b->whereHas('starredByUsers', fn ($q) => $q->where('users.id', $user->id))
             )
@@ -445,7 +448,7 @@ class EnkiController extends Controller
             ->groupBy('categories.slug')
             ->select('categories.slug', DB::raw('count(*) as cnt'))
             ->pluck('cnt', 'slug')
-            ->map(fn ($v) => (int) $v)
+            ->map(fn ($v): int => (int) $v)
             ->toArray();
 
         $counts = array_merge(['all' => $matchingIds->count()], $perCat);
@@ -466,7 +469,7 @@ class EnkiController extends Controller
                 Author::withCount('skills')
                     ->get()
                     ->keyBy('slug')
-                    ->map(fn (Author $a) => [
+                    ->map(fn (Author $a): array => [
                         'name' => $a->name,
                         'members' => $a->members,
                         'skills' => $a->skills_count,
@@ -479,7 +482,7 @@ class EnkiController extends Controller
     {
         return Category::orderBy('label')
             ->get()
-            ->map(fn (Category $c) => [
+            ->map(fn (Category $c): array => [
                 'id' => $c->slug,
                 'label' => $c->label,
                 'icon' => $c->icon,
@@ -564,9 +567,9 @@ class EnkiController extends Controller
             ->with('causer')
             ->latest()
             ->get()
-            ->map(fn (Activity $a) => [
+            ->map(fn (Activity $a): array => [
                 'event' => $a->event ?? 'updated',
-                'causer' => $a->causer?->name,
+                'causer' => $a->causer?->getAttribute('name'),
                 'at' => $a->created_at->toISOString(),
                 'atHuman' => $a->created_at->diffForHumans(['parts' => 1]),
             ])
@@ -576,7 +579,7 @@ class EnkiController extends Controller
             'readmeHtml' => Str::markdown(SkillContent::stripFrontmatter($skill->readme ?? '')),
             'readmeFrontmatter' => SkillContent::extractFrontmatter($skill->readme ?? ''),
             'usageHtml' => Str::markdown($skill->usage ?? ''),
-            'changelog' => $skill->changelogEntries->map(fn ($e) => [
+            'changelog' => $skill->changelogEntries->map(fn (SkillChangelogEntry $e): array => [
                 'v' => $e->version,
                 'd' => $e->released_on->toDateString(),
                 'notes' => $e->notes,

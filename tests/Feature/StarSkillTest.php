@@ -3,7 +3,7 @@
 use App\Models\Skill;
 use App\Models\User;
 
-test('authenticated user can star a skill', function () {
+test('authenticated user can star a skill', function (): void {
     $user = User::factory()->create();
     $skill = Skill::factory()->create();
 
@@ -19,7 +19,7 @@ test('authenticated user can star a skill', function () {
     ]);
 });
 
-test('starring again un-stars the skill', function () {
+test('starring again un-stars the skill', function (): void {
     $user = User::factory()->create();
     $skill = Skill::factory()->create();
 
@@ -37,7 +37,7 @@ test('starring again un-stars the skill', function () {
     ]);
 });
 
-test('unauthenticated request returns 401', function () {
+test('unauthenticated request returns 401', function (): void {
     $skill = Skill::factory()->create();
 
     $response = $this->postJson(route('enki.skill.star', $skill->slug));

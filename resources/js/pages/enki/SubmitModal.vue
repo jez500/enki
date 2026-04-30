@@ -41,7 +41,9 @@ function csrfToken(): string {
 }
 
 function onKey(e: KeyboardEvent) {
-    if (e.key === 'Escape') emit('close');
+    if (e.key === 'Escape') {
+emit('close');
+}
 }
 
 onMounted(() => window.addEventListener('keydown', onKey));
@@ -54,12 +56,16 @@ function onArchivePick(e: Event) {
 
 function clearArchive() {
     archiveFile.value = null;
-    if (archiveInputRef.value) archiveInputRef.value.value = '';
+
+    if (archiveInputRef.value) {
+archiveInputRef.value.value = '';
+}
 }
 
 async function importFromGitHub() {
     importing.value = true;
     importError.value = null;
+
     try {
         const res = await fetch('/enki/skills/import', {
             method: 'POST',
@@ -71,6 +77,7 @@ async function importFromGitHub() {
             body: JSON.stringify({ github_url: githubUrl.value }),
         });
         const body = await res.json().catch(() => ({}));
+
         if (!res.ok) {
             importError.value = body.message ?? 'Import failed.';
         } else {
@@ -88,15 +95,23 @@ async function importFromGitHub() {
 async function submitSkill() {
     submitting.value = true;
     submitError.value = null;
+
     try {
         const fd = new FormData();
         fd.append('name', form.name);
-        if (!isEdit && form.slug) fd.append('slug', form.slug);
+
+        if (!isEdit && form.slug) {
+fd.append('slug', form.slug);
+}
+
         fd.append('category', form.category);
         fd.append('summary', form.summary);
         fd.append('tags', form.tags);
         fd.append('visibility', form.visibility);
-        if (archiveFile.value) fd.append('archive', archiveFile.value);
+
+        if (archiveFile.value) {
+fd.append('archive', archiveFile.value);
+}
 
         const url = isEdit
             ? `/enki/skills/${encodeURIComponent(props.skill!.slug)}`
@@ -107,6 +122,7 @@ async function submitSkill() {
             body: fd,
         });
         const body = await res.json().catch(() => ({}));
+
         if (!res.ok) {
             submitError.value = body.message ?? 'Submission failed.';
         } else {
@@ -124,11 +140,13 @@ async function submitSkill() {
 async function deleteSkill() {
     deleting.value = true;
     deleteError.value = null;
+
     try {
         const res = await fetch(`/enki/skills/${encodeURIComponent(props.skill!.slug)}`, {
             method: 'DELETE',
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
         });
+
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
             deleteError.value = body.message ?? 'Delete failed.';

@@ -3,7 +3,7 @@
 use App\Enums\UserRole;
 use App\Models\User;
 
-test('assigns admin role to a user by email argument', function () {
+test('assigns admin role to a user by email argument', function (): void {
     $user = User::factory()->create(['role' => UserRole::Member]);
 
     $this->artisan('user:assign-admin', ['email' => $user->email])
@@ -12,7 +12,7 @@ test('assigns admin role to a user by email argument', function () {
     expect($user->fresh()->role)->toBe(UserRole::Admin);
 });
 
-test('reports success if user is already an admin', function () {
+test('reports success if user is already an admin', function (): void {
     $user = User::factory()->create(['role' => UserRole::Admin]);
 
     $this->artisan('user:assign-admin', ['email' => $user->email])
@@ -22,7 +22,7 @@ test('reports success if user is already an admin', function () {
     expect($user->fresh()->role)->toBe(UserRole::Admin);
 });
 
-test('fails with an error if email does not match any user', function () {
+test('fails with an error if email does not match any user', function (): void {
     $this->artisan('user:assign-admin', ['email' => 'nobody@example.com'])
         ->expectsOutputToContain('No user found')
         ->assertFailed();

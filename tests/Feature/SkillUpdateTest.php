@@ -5,11 +5,11 @@ use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Storage::fake('skill_data');
 });
 
-test('owner can update their skill metadata', function () {
+test('owner can update their skill metadata', function (): void {
     $user = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
     $skill = Skill::factory()->create([
@@ -20,7 +20,7 @@ test('owner can update their skill metadata', function () {
     ]);
 
     $this->actingAs($user)
-        ->postJson("/enki/skills/{$skill->slug}", [
+        ->postJson('/enki/skills/'.$skill->slug, [
             'name' => 'New Name',
             'category' => 'writing',
             'summary' => 'New summary',
@@ -36,14 +36,14 @@ test('owner can update their skill metadata', function () {
         ->and($skill->fresh()->visibility)->toBe('private');
 });
 
-test('member cannot update someone else\'s skill', function () {
+test("member cannot update someone else's skill", function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
     $skill = Skill::factory()->create(['created_by_user_id' => $owner->id]);
 
     $this->actingAs($other)
-        ->postJson("/enki/skills/{$skill->slug}", [
+        ->postJson('/enki/skills/'.$skill->slug, [
             'name' => 'Hacked',
             'category' => 'writing',
             'visibility' => 'public',
@@ -53,14 +53,14 @@ test('member cannot update someone else\'s skill', function () {
     expect($skill->fresh()->name)->not->toBe('Hacked');
 });
 
-test('admin can update any skill', function () {
+test('admin can update any skill', function (): void {
     $owner = User::factory()->create();
     $admin = User::factory()->admin()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
     $skill = Skill::factory()->create(['created_by_user_id' => $owner->id, 'name' => 'Old']);
 
     $this->actingAs($admin)
-        ->postJson("/enki/skills/{$skill->slug}", [
+        ->postJson('/enki/skills/'.$skill->slug, [
             'name' => 'Admin Edited',
             'category' => 'writing',
             'visibility' => 'public',
@@ -69,43 +69,43 @@ test('admin can update any skill', function () {
         ->assertJsonPath('name', 'Admin Edited');
 });
 
-test('owner can delete their skill', function () {
+test('owner can delete their skill', function (): void {
     $user = User::factory()->create();
     $skill = Skill::factory()->create(['created_by_user_id' => $user->id]);
 
     $this->actingAs($user)
-        ->deleteJson("/enki/skills/{$skill->slug}")
+        ->deleteJson('/enki/skills/'.$skill->slug)
         ->assertOk()
         ->assertJsonPath('deleted', true);
 
     expect(Skill::withTrashed()->where('id', $skill->id)->exists())->toBeFalse();
 });
 
-test('member cannot delete someone else\'s skill', function () {
+test("member cannot delete someone else's skill", function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();
     $skill = Skill::factory()->create(['created_by_user_id' => $owner->id]);
 
     $this->actingAs($other)
-        ->deleteJson("/enki/skills/{$skill->slug}")
+        ->deleteJson('/enki/skills/'.$skill->slug)
         ->assertForbidden();
 
     expect(Skill::where('id', $skill->id)->exists())->toBeTrue();
 });
 
-test('admin can delete any skill', function () {
+test('admin can delete any skill', function (): void {
     $owner = User::factory()->create();
     $admin = User::factory()->admin()->create();
     $skill = Skill::factory()->create(['created_by_user_id' => $owner->id]);
 
     $this->actingAs($admin)
-        ->deleteJson("/enki/skills/{$skill->slug}")
+        ->deleteJson('/enki/skills/'.$skill->slug)
         ->assertOk();
 
     expect(Skill::where('id', $skill->id)->exists())->toBeFalse();
 });
 
-test('canEdit flag is true for skill owner', function () {
+test('canEdit flag is true for skill owner', function (): void {
     $user = User::factory()->create();
     Skill::factory()->create(['created_by_user_id' => $user->id, 'visibility' => 'public']);
 
@@ -115,7 +115,7 @@ test('canEdit flag is true for skill owner', function () {
         ->assertInertia(fn ($page) => $page->where('selectedSkill.canEdit', true));
 });
 
-test('canEdit flag is false for non-owner non-admin', function () {
+test('canEdit flag is false for non-owner non-admin', function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();
     Skill::factory()->create(['created_by_user_id' => $owner->id, 'visibility' => 'public']);
@@ -126,7 +126,7 @@ test('canEdit flag is false for non-owner non-admin', function () {
         ->assertInertia(fn ($page) => $page->where('selectedSkill.canEdit', false));
 });
 
-test('canEdit flag is true for admin viewing other user\'s skill', function () {
+test("canEdit flag is true for admin viewing other user's skill", function (): void {
     $owner = User::factory()->create();
     $admin = User::factory()->admin()->create();
     Skill::factory()->create(['created_by_user_id' => $owner->id, 'visibility' => 'public']);

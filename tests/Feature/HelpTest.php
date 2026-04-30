@@ -1,17 +1,16 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\File;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
 });
 
-test('guests are redirected from the help page', function () {
+test('guests are redirected from the help page', function (): void {
     $this->get(route('help'))->assertRedirect(route('login'));
 });
 
-test('authenticated users can view the help page with readme by default', function () {
+test('authenticated users can view the help page with readme by default', function (): void {
     $this->actingAs($this->user)
         ->get(route('help'))
         ->assertOk()
@@ -23,7 +22,7 @@ test('authenticated users can view the help page with readme by default', functi
         );
 });
 
-test('it renders a specific doc', function () {
+test('it renders a specific doc', function (): void {
     $this->actingAs($this->user)
         ->get(route('help', ['doc' => 'SSO_SETUP']))
         ->assertOk()
@@ -32,19 +31,19 @@ test('it renders a specific doc', function () {
         );
 });
 
-test('it returns 404 for a missing doc', function () {
+test('it returns 404 for a missing doc', function (): void {
     $this->actingAs($this->user)
         ->get(route('help', ['doc' => 'NonExistent']))
         ->assertNotFound();
 });
 
-test('it returns 404 for path traversal attempts', function () {
+test('it returns 404 for path traversal attempts', function (): void {
     $this->actingAs($this->user)
         ->get('/help/..%2FREADME')
         ->assertNotFound();
 });
 
-test('doc list includes all md files with formatted titles', function () {
+test('doc list includes all md files with formatted titles', function (): void {
     $this->actingAs($this->user)
         ->get(route('help'))
         ->assertInertia(fn ($page) => $page
@@ -54,7 +53,7 @@ test('doc list includes all md files with formatted titles', function () {
         );
 });
 
-test('readme appears first in the doc list', function () {
+test('readme appears first in the doc list', function (): void {
     $this->actingAs($this->user)
         ->get(route('help'))
         ->assertInertia(fn ($page) => $page
@@ -62,10 +61,10 @@ test('readme appears first in the doc list', function () {
         );
 });
 
-test('content is rendered as html', function () {
+test('content is rendered as html', function (): void {
     $this->actingAs($this->user)
         ->get(route('help'))
         ->assertInertia(fn ($page) => $page
-            ->where('content', fn ($content) => str_contains($content, '<'))
+            ->where('content', fn ($content): bool => str_contains((string) $content, '<'))
         );
 });

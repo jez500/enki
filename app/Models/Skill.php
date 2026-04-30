@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Services\SkillContent;
-use Database\Factories\SkillFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +14,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * @property string $updated
+ * @property int $ratings
+ * @property bool $starred
+ * @property-read Author $author
+ * @property-read User|null $createdBy
+ * @property-read Collection<int, Category> $categories
+ * @property-read Collection<int, SkillChangelogEntry> $changelogEntries
+ */
 #[Fillable([
     'slug', 'name', 'summary', 'author_id',
     'version', 'installs',
@@ -21,8 +30,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 ])]
 class Skill extends Model
 {
-    /** @use HasFactory<SkillFactory> */
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory;
+    use LogsActivity;
+    use SoftDeletes;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -32,6 +42,7 @@ class Skill extends Model
             ->dontSubmitEmptyLogs();
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return [

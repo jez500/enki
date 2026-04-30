@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
 import { router, useHttp } from '@inertiajs/vue3';
-import type { EnkiCategory, EnkiTint, EnkiAuthor, EnkiSkill, EnkiSkillSummary, EnkiFilters } from '@/types/enki';
+import { computed, ref, watch } from 'vue';
 import { star as skillStar } from '@/routes/enki/skill';
-import TopBar from './enki/TopBar.vue';
+import type { EnkiCategory, EnkiTint, EnkiAuthor, EnkiSkill, EnkiSkillSummary, EnkiFilters } from '@/types/enki';
+import AuthorModal from './enki/AuthorModal.vue';
+import DetailPane from './enki/DetailPane.vue';
 import FilterRail from './enki/FilterRail.vue';
 import SkillList from './enki/SkillList.vue';
-import DetailPane from './enki/DetailPane.vue';
 import SubmitModal from './enki/SubmitModal.vue';
-import AuthorModal from './enki/AuthorModal.vue';
+import TopBar from './enki/TopBar.vue';
 
 const props = defineProps<{
     categories: EnkiCategory[];
@@ -54,12 +54,31 @@ function applyFilters(immediate = false) {
     clearTimeout(debounceTimer);
     const run = () => {
         const params: Record<string, string | number | undefined> = {};
-        if (query.value) params.q = query.value;
-        if (category.value !== 'all') params.category = category.value;
-        if (sort.value !== 'recent') params.sort = sort.value;
-        if (showStarred.value) params.starred = 1;
-        if (showMySkills.value) params.mySkills = 1;
-        if (source.value !== 'all') params.source = source.value;
+
+        if (query.value) {
+params.q = query.value;
+}
+
+        if (category.value !== 'all') {
+params.category = category.value;
+}
+
+        if (sort.value !== 'recent') {
+params.sort = sort.value;
+}
+
+        if (showStarred.value) {
+params.starred = 1;
+}
+
+        if (showMySkills.value) {
+params.mySkills = 1;
+}
+
+        if (source.value !== 'all') {
+params.source = source.value;
+}
+
         router.get(window.location.pathname, params, {
             only: ['skills', 'skillCounts', 'filters'],
             reset: ['skills'],
@@ -67,6 +86,7 @@ function applyFilters(immediate = false) {
             replace: true,
         });
     };
+
     if (immediate) {
         run();
     } else {
@@ -90,12 +110,14 @@ function selectSkill(slug: string) {
 // ── Star toggling ─────────────────────────────────────────────────────────────
 function toggleStar(slug: string) {
     const idx = props.skills.data.findIndex((s) => s.slug === slug);
+
     if (idx !== -1) {
         router.replaceProp('skills.data.' + idx, {
             ...props.skills.data[idx],
             starred: !props.skills.data[idx].starred,
         });
     }
+
     if (props.selectedSkill?.slug === slug) {
         router.replaceProp('selectedSkill', {
             ...props.selectedSkill,

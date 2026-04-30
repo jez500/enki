@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import type { User } from '@/types';
+import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { logout } from '@/routes';
 import { edit as profileEdit } from '@/routes/profile';
+import type { User } from '@/types';
 
 defineProps<{
     query: string;
@@ -27,16 +27,19 @@ const page = usePage();
 const authUser = computed(() => (page.props.auth as { user: User })?.user);
 const userInitials = computed(() => {
     const name = authUser.value?.name ?? '';
+
     return name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
 });
 const isAdmin = computed(() => authUser.value?.role === 'admin');
 
 function onKey(e: KeyboardEvent) {
     const tag = (document.activeElement as HTMLElement).tagName;
+
     if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
         e.preventDefault();
         searchInput.value?.focus();
     }
+
     if (e.key === 'Escape' && document.activeElement === searchInput.value) {
         searchInput.value?.blur();
     }

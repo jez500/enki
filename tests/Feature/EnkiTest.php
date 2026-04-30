@@ -6,18 +6,19 @@ use App\Models\Skill;
 use App\Models\User;
 use Database\Seeders\CategorySeeder;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia;
 use Inertia\Testing\AssertableInertia as Assert;
 
-test('guests are redirected to the login page', function () {
+test('guests are redirected to the login page', function (): void {
     $this->get(route('enki'))->assertRedirect(route('login'));
 });
 
-test('authenticated users can visit enki', function () {
+test('authenticated users can visit enki', function (): void {
     $user = User::factory()->create();
     $this->actingAs($user)->get(route('enki'))->assertOk();
 });
 
-test('enki page includes skills from the database', function () {
+test('enki page includes skills from the database', function (): void {
     $author = Author::factory()->create();
     $category = Category::factory()->create(['slug' => 'coding', 'label' => 'Coding']);
     $skill = Skill::factory()->for($author)->create(['slug' => 'coding/test-skill', 'tags' => ['php', 'testing']]);
@@ -26,7 +27,7 @@ test('enki page includes skills from the database', function () {
     $this->actingAs(User::factory()->create());
 
     $this->get(route('enki'))
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
             ->component('Enki')
             ->where('skills.data.0.slug', 'coding/test-skill')
             ->where('skills.data.0.tags', ['php', 'testing'])
@@ -35,7 +36,7 @@ test('enki page includes skills from the database', function () {
         );
 });
 
-test('starred skills are flagged for the authenticated user', function () {
+test('starred skills are flagged for the authenticated user', function (): void {
     $author = Author::factory()->create();
     $skill = Skill::factory()->for($author)->create(['slug' => 'coding/starred-skill']);
 
@@ -44,19 +45,19 @@ test('starred skills are flagged for the authenticated user', function () {
     $this->actingAs($user);
 
     $this->get(route('enki'))
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
             ->component('Enki')
             ->where('skills.data.0.starred', true)
         );
 });
 
-test('enki props include categories, tints, filters and skill counts', function () {
+test('enki props include categories, tints, filters and skill counts', function (): void {
     $this->seed(CategorySeeder::class);
 
     $this->actingAs(User::factory()->create());
 
     $this->get(route('enki'))
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
             ->component('Enki')
             ->has('categories', 9)
             ->has('tints', 6)
@@ -65,7 +66,7 @@ test('enki props include categories, tints, filters and skill counts', function 
         );
 });
 
-test('server-side search filters skills by name', function () {
+test('server-side search filters skills by name', function (): void {
     $author = Author::factory()->create();
     Skill::factory()->for($author)->create(['slug' => 'a/match', 'name' => 'Matching Skill']);
     Skill::factory()->for($author)->create(['slug' => 'b/other', 'name' => 'Other Skill']);
@@ -73,13 +74,13 @@ test('server-side search filters skills by name', function () {
     $this->actingAs(User::factory()->create());
 
     $this->get(route('enki', ['q' => 'matching']))
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
             ->where('skills.total', 1)
             ->where('skills.data.0.slug', 'a/match')
         );
 });
 
-test('server-side category filter narrows results', function () {
+test('server-side category filter narrows results', function (): void {
     $this->seed(CategorySeeder::class);
     $author = Author::factory()->create();
     $coding = Category::where('slug', 'coding')->first();
@@ -94,13 +95,13 @@ test('server-side category filter narrows results', function () {
     $this->actingAs(User::factory()->create());
 
     $this->get(route('enki', ['category' => 'coding']))
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
             ->where('skills.total', 1)
             ->where('skills.data.0.slug', 'coding/one')
         );
 });
 
-test('enki.skill route loads the named skill as selectedSkill', function () {
+test('enki.skill route loads the named skill as selectedSkill', function (): void {
     $author = Author::factory()->create();
     $skill = Skill::factory()->for($author)->create(['slug' => 'coding/my-skill']);
 
@@ -108,19 +109,19 @@ test('enki.skill route loads the named skill as selectedSkill', function () {
 
     $this->get(route('enki.skill', ['slug' => 'coding/my-skill']))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
+        ->assertInertia(fn (Assert $page): AssertableInertia => $page
             ->component('Enki')
             ->where('selectedSkill.slug', 'coding/my-skill')
             ->has('selectedSkill.readmeHtml')
         );
 });
 
-test('enki.skill route returns 404 for unknown slug', function () {
+test('enki.skill route returns 404 for unknown slug', function (): void {
     $this->actingAs(User::factory()->create());
     $this->get(route('enki.skill', ['slug' => 'missing/skill']))->assertNotFound();
 });
 
-test('skill download streams a zip of the skill files', function () {
+test('skill download streams a zip of the skill files', function (): void {
     Storage::fake('skill_data');
 
     $author = Author::factory()->create();
@@ -135,21 +136,23 @@ test('skill download streams a zip of the skill files', function () {
     $response = $this->get(route('enki.skill.download', ['slug' => 'coding/zip-me']));
 
     $response->assertOk();
+
     expect($response->headers->get('content-type'))->toBe('application/zip');
     expect($response->headers->get('content-disposition'))->toContain('coding-zip-me.zip');
 
     $tmp = tempnam(sys_get_temp_dir(), 'zipdl-');
     file_put_contents($tmp, $response->streamedContent() ?: $response->getContent());
 
-    $zip = new \ZipArchive;
+    $zip = new ZipArchive;
     expect($zip->open($tmp))->toBeTrue();
     expect($zip->getFromName('SKILL.md'))->toBe("---\nname: zip-me\n---\nHello");
     expect($zip->getFromName('docs/notes.md'))->toBe('# notes');
+
     $zip->close();
     @unlink($tmp);
 });
 
-test('skill download returns 404 when the skill has no stored files', function () {
+test('skill download returns 404 when the skill has no stored files', function (): void {
     Storage::fake('skill_data');
 
     $author = Author::factory()->create();

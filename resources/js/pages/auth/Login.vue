@@ -8,8 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { google as googleRoute } from '@/routes/auth';
 import { register } from '@/routes';
+import { google as googleRoute } from '@/routes/auth';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 

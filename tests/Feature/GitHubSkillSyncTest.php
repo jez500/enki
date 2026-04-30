@@ -7,7 +7,7 @@ use App\Services\GitHubSkillSync;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Http::preventStrayRequests();
     Storage::fake('skill_data');
 });
@@ -32,7 +32,7 @@ function fakeRepoZip(string $topDir, array $files): string
     $zip->open($tmpZip, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
     foreach ($files as $path => $content) {
-        $zip->addFromString("{$topDir}/{$path}", $content);
+        $zip->addFromString(sprintf('%s/%s', $topDir, $path), $content);
     }
 
     $zip->close();
@@ -66,7 +66,7 @@ function stubGitHubApis(): void
     ]);
 }
 
-test('parseUrl extracts owner repo branch path', function () {
+test('parseUrl extracts owner repo branch path', function (): void {
     $service = app(GitHubSkillSync::class);
     $parts = $service->parseUrl('https://github.com/anthropics/skills/tree/main/skills/my-skill');
 
@@ -78,7 +78,7 @@ test('parseUrl extracts owner repo branch path', function () {
     ]);
 });
 
-test('parseUrl extracts owner repo branch with empty path for repo root url', function () {
+test('parseUrl extracts owner repo branch with empty path for repo root url', function (): void {
     $service = app(GitHubSkillSync::class);
     $parts = $service->parseUrl('https://github.com/alchaincyf/huashu-design/tree/master');
 
@@ -90,19 +90,19 @@ test('parseUrl extracts owner repo branch with empty path for repo root url', fu
     ]);
 });
 
-test('parseUrl accepts repo root url with trailing slash', function () {
+test('parseUrl accepts repo root url with trailing slash', function (): void {
     $service = app(GitHubSkillSync::class);
     $parts = $service->parseUrl('https://github.com/alchaincyf/huashu-design/tree/master/');
 
     expect($parts['path'])->toBe('');
 });
 
-test('parseUrl rejects invalid url', function () {
+test('parseUrl rejects invalid url', function (): void {
     expect(fn () => app(GitHubSkillSync::class)->parseUrl('https://github.com/anthropics/skills'))
         ->toThrow(InvalidArgumentException::class);
 });
 
-test('import creates skill and files from github', function () {
+test('import creates skill and files from github', function (): void {
     stubGitHubApis();
 
     $url = 'https://github.com/anthropics/skills/tree/main/skills/my-skill';
@@ -128,7 +128,7 @@ test('import creates skill and files from github', function () {
     expect($content->read('agents/researcher.md'))->toBe('agent file');
 });
 
-test('import from repo root url uses repo name as slug', function () {
+test('import from repo root url uses repo name as slug', function (): void {
     Http::fake([
         'https://github.com/acme/my-repo/archive/refs/heads/main.zip' => Http::response(
             fakeRepoZip('my-repo-main', [
@@ -147,7 +147,7 @@ test('import from repo root url uses repo name as slug', function () {
         ->and($skill->name)->toBe('Root Skill');
 });
 
-test('sync updates existing external skill', function () {
+test('sync updates existing external skill', function (): void {
     stubGitHubApis();
 
     $url = 'https://github.com/anthropics/skills/tree/main/skills/my-skill';
@@ -160,12 +160,12 @@ test('sync updates existing external skill', function () {
         ->and($skill->version)->toBe('2.1.0');
 });
 
-test('import endpoint requires authentication', function () {
+test('import endpoint requires authentication', function (): void {
     $this->postJson('/enki/skills/import', ['github_url' => 'https://github.com/a/b/tree/main/c'])
         ->assertUnauthorized();
 });
 
-test('import endpoint validates github url format', function () {
+test('import endpoint validates github url format', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user)
@@ -174,7 +174,7 @@ test('import endpoint validates github url format', function () {
         ->assertJsonValidationErrors('github_url');
 });
 
-test('import endpoint calls sync service and returns skill', function () {
+test('import endpoint calls sync service and returns skill', function (): void {
     stubGitHubApis();
 
     $user = User::factory()->create();
@@ -190,7 +190,7 @@ test('import endpoint calls sync service and returns skill', function () {
         ->assertJsonPath('githubUrl', $url);
 });
 
-test('sync endpoint updates and returns skill', function () {
+test('sync endpoint updates and returns skill', function (): void {
     stubGitHubApis();
 
     $user = User::factory()->create();
@@ -202,13 +202,13 @@ test('sync endpoint updates and returns skill', function () {
     ]);
 
     $this->actingAs($user)
-        ->postJson("/enki/skills/{$skill->slug}/sync")
+        ->postJson(sprintf('/enki/skills/%s/sync', $skill->slug))
         ->assertOk()
         ->assertJsonPath('name', 'My Skill')
         ->assertJsonPath('isExternal', true);
 });
 
-test('sync endpoint rejects internal skills', function () {
+test('sync endpoint rejects internal skills', function (): void {
     $user = User::factory()->create();
     $skill = Skill::factory()->create([
         'github_url' => null,
@@ -217,12 +217,12 @@ test('sync endpoint rejects internal skills', function () {
     ]);
 
     $this->actingAs($user)
-        ->postJson("/enki/skills/{$skill->slug}/sync")
+        ->postJson(sprintf('/enki/skills/%s/sync', $skill->slug))
         ->assertStatus(422)
         ->assertJsonPath('message', 'This skill is not linked to a GitHub repository.');
 });
 
-test('member cannot sync a skill they did not create', function () {
+test('member cannot sync a skill they did not create', function (): void {
     $url = 'https://github.com/anthropics/skills/tree/main/skills/my-skill';
     $owner = User::factory()->create();
     $skill = Skill::factory()->create([
@@ -233,11 +233,11 @@ test('member cannot sync a skill they did not create', function () {
     $other = User::factory()->create();
 
     $this->actingAs($other)
-        ->postJson("/enki/skills/{$skill->slug}/sync")
+        ->postJson(sprintf('/enki/skills/%s/sync', $skill->slug))
         ->assertForbidden();
 });
 
-test('admin can sync any skill', function () {
+test('admin can sync any skill', function (): void {
     stubGitHubApis();
 
     $url = 'https://github.com/anthropics/skills/tree/main/skills/my-skill';
@@ -250,7 +250,7 @@ test('admin can sync any skill', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)
-        ->postJson("/enki/skills/{$skill->slug}/sync")
+        ->postJson(sprintf('/enki/skills/%s/sync', $skill->slug))
         ->assertOk()
         ->assertJsonPath('name', 'My Skill');
 });

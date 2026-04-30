@@ -1,7 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import { initializeTheme } from '@/composables/useAppearance';
 import AppLayout from '@/layouts/AppLayout.vue';
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import EnkiLayout from '@/layouts/EnkiLayout.vue';
 import EnkiMinimalLayout from '@/layouts/EnkiMinimalLayout.vue';
 import EnkiSettingsLayout from '@/layouts/settings/EnkiLayout.vue';

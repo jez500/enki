@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted } from 'vue';
 import type { EnkiPrefs } from '@/types/enki';
 
-const props = defineProps<{
+defineProps<{
     prefs: EnkiPrefs;
     darkMode: boolean;
     accent: string;
@@ -24,7 +24,9 @@ const accentPresets = [
 ];
 
 function onKey(e: KeyboardEvent) {
-    if (e.key === 'Escape') emit('close');
+    if (e.key === 'Escape') {
+emit('close');
+}
 }
 
 onMounted(() => window.addEventListener('keydown', onKey));

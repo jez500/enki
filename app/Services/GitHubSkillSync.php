@@ -106,7 +106,7 @@ class GitHubSkillSync
 
         try {
             $skillDir = $this->resolveSkillDir($tmpDir, $path);
-            $fileNames = array_map('basename', glob($skillDir.'/*') ?: []);
+            $fileNames = array_map(basename(...), glob($skillDir.'/*') ?: []);
 
             $readme = $this->readTextFile($skillDir, ['SKILL.md', 'README.md'], $fileNames);
             $meta = $this->parseMeta($skillDir, $fileNames, $readme);
@@ -138,7 +138,7 @@ class GitHubSkillSync
 
     private function downloadAndExtract(string $owner, string $repo, string $branch): string
     {
-        $zipUrl = "https://github.com/{$owner}/{$repo}/archive/refs/heads/{$branch}.zip";
+        $zipUrl = sprintf('https://github.com/%s/%s/archive/refs/heads/%s.zip', $owner, $repo, $branch);
 
         $request = Http::timeout(120)->withHeaders(['Accept' => 'application/octet-stream']);
         if ($token = config('services.github.token')) {
@@ -148,13 +148,15 @@ class GitHubSkillSync
         $response = $request->get($zipUrl);
 
         if ($response->status() === 404) {
-            throw new RuntimeException("Repository or branch not found: {$owner}/{$repo}@{$branch}");
+            throw new RuntimeException(sprintf('Repository or branch not found: %s/%s@%s', $owner, $repo, $branch));
         }
+
         if ($response->status() === 403) {
             throw new RuntimeException('GitHub access denied. Set GITHUB_TOKEN if the repository is private.');
         }
+
         if (! $response->successful()) {
-            throw new RuntimeException("Failed to download repository zip: HTTP {$response->status()}");
+            throw new RuntimeException('Failed to download repository zip: HTTP '.$response->status());
         }
 
         $tmpZip = sys_get_temp_dir().'/enki-'.uniqid().'.zip';
@@ -167,6 +169,7 @@ class GitHubSkillSync
             if ($zip->open($tmpZip) !== true) {
                 throw new RuntimeException('Failed to open downloaded zip.');
             }
+
             mkdir($tmpDir, 0755, true);
             $zip->extractTo($tmpDir);
             $zip->close();
@@ -181,7 +184,7 @@ class GitHubSkillSync
     {
         $topLevel = glob($tmpDir.'/*', GLOB_ONLYDIR);
 
-        if (empty($topLevel)) {
+        if ($topLevel === [] || $topLevel === false) {
             throw new RuntimeException('Unexpected zip structure: no top-level directory found.');
         }
 
@@ -194,7 +197,7 @@ class GitHubSkillSync
         $skillDir = $repoRoot.'/'.$path;
 
         if (! is_dir($skillDir)) {
-            throw new RuntimeException("Path '{$path}' not found in repository.");
+            throw new RuntimeException(sprintf("Path '%s' not found in repository.", $path));
         }
 
         return $skillDir;
@@ -252,6 +255,7 @@ class GitHubSkillSync
             if (! $file->isFile()) {
                 continue;
             }
+
             $size = $file->getSize();
             $relativePath = ltrim(str_replace($skillDir, '', $file->getPathname()), '/\\');
             $content = $size <= 51200 ? (file_get_contents($file->getPathname()) ?: null) : null;
@@ -283,10 +287,11 @@ class GitHubSkillSync
     {
         try {
             $query = ['per_page' => 1, 'sha' => $branch];
-            if ($path) {
+            if ($path !== '' && $path !== '0') {
                 $query['path'] = $path;
             }
-            $commits = $this->apiGet("/repos/{$owner}/{$repo}/commits", $query);
+
+            $commits = $this->apiGet(sprintf('/repos/%s/%s/commits', $owner, $repo), $query);
 
             return $commits[0]['commit']['committer']['date'] ?? null;
         } catch (\Throwable) {
@@ -347,7 +352,7 @@ class GitHubSkillSync
         $response = $request->get('https://api.github.com'.$endpoint, $query);
 
         if ($response->status() === 404) {
-            throw new RuntimeException("GitHub path not found: {$endpoint}");
+            throw new RuntimeException('GitHub path not found: '.$endpoint);
         }
 
         if ($response->status() === 403) {
@@ -355,7 +360,7 @@ class GitHubSkillSync
         }
 
         if (! $response->successful()) {
-            throw new RuntimeException("GitHub API error {$response->status()}: {$response->body()}");
+            throw new RuntimeException(sprintf('GitHub API error %s: %s', $response->status(), $response->body()));
         }
 
         return $response->json();

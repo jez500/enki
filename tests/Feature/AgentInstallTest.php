@@ -3,15 +3,15 @@
 use App\Models\User;
 use Illuminate\Support\Str;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create(['api_token' => null]);
 });
 
-test('guests are redirected from the agent install page', function () {
+test('guests are redirected from the agent install page', function (): void {
     $this->get(route('help.agent-install'))->assertRedirect(route('login'));
 });
 
-test('authenticated users can view the agent install page', function () {
+test('authenticated users can view the agent install page', function (): void {
     $this->actingAs($this->user)
         ->get(route('help.agent-install'))
         ->assertOk()
@@ -23,7 +23,7 @@ test('authenticated users can view the agent install page', function () {
         );
 });
 
-test('users can generate an api token', function () {
+test('users can generate an api token', function (): void {
     $this->actingAs($this->user)
         ->post(route('help.agent-install.token'))
         ->assertOk()
@@ -32,7 +32,7 @@ test('users can generate an api token', function () {
     expect($this->user->fresh()->api_token)->not->toBeNull();
 });
 
-test('regenerating a token replaces the previous one', function () {
+test('regenerating a token replaces the previous one', function (): void {
     $this->user->update(['api_token' => Str::random(64)]);
     $oldToken = $this->user->api_token;
 
@@ -42,7 +42,7 @@ test('regenerating a token replaces the previous one', function () {
     expect($this->user->fresh()->api_token)->not->toBe($oldToken);
 });
 
-test('api token is returned in the json response', function () {
+test('api token is returned in the json response', function (): void {
     $response = $this->actingAs($this->user)
         ->post(route('help.agent-install.token'));
 
@@ -50,17 +50,17 @@ test('api token is returned in the json response', function () {
     $response->assertJson(['api_token' => $newToken]);
 });
 
-test('api skill download requires a valid bearer token', function () {
+test('api skill download requires a valid bearer token', function (): void {
     $this->getJson('/api/skills/enki/download')->assertUnauthorized();
 });
 
-test('api skill download rejects an invalid token', function () {
+test('api skill download rejects an invalid token', function (): void {
     $this->withToken('bad-token')
         ->getJson('/api/skills/enki/download')
         ->assertUnauthorized();
 });
 
-test('api skill download accepts a valid token', function () {
+test('api skill download accepts a valid token', function (): void {
     $token = Str::random(64);
     User::factory()->create(['api_token' => $token]);
 

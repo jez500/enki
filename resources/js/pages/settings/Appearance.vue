@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
 import { inject } from 'vue';
 import type { Ref } from 'vue';
-import { Head } from '@inertiajs/vue3';
 
 const darkMode = inject<Ref<boolean>>('enkiDarkMode')!;
 const accent = inject<Ref<string>>('enkiAccent')!;

@@ -32,12 +32,12 @@ class SkillArchiveParser
             $files = $this->collectFiles($root, $root);
 
             return [
-                'name'    => $this->slugToTitle($meta['name'] ?? basename($root)),
+                'name' => $this->slugToTitle($meta['name'] ?? basename($root)),
                 'summary' => $meta['summary'] ?? $meta['description'] ?? '',
                 'version' => (string) ($meta['version'] ?? '1.0.0'),
-                'tags'    => array_values(array_filter((array) ($meta['tags'] ?? []))),
-                'readme'  => $readme,
-                'files'   => $files,
+                'tags' => array_values(array_filter((array) ($meta['tags'] ?? []))),
+                'readme' => $readme,
+                'files' => $files,
             ];
         } finally {
             $this->deleteDir($tmpDir);
@@ -54,6 +54,7 @@ class SkillArchiveParser
             if ($zip->open($path) !== true) {
                 throw new \InvalidArgumentException('Could not open zip archive.');
             }
+
             $zip->extractTo($dest);
             $zip->close();
 
@@ -67,7 +68,7 @@ class SkillArchiveParser
                 $phar = new \PharData($path);
                 $phar->extractTo($dest);
             } catch (\Exception $e) {
-                throw new \InvalidArgumentException('Could not open tar archive: '.$e->getMessage());
+                throw new \InvalidArgumentException('Could not open tar archive: '.$e->getMessage(), $e->getCode(), $e);
             }
 
             return;
@@ -83,7 +84,7 @@ class SkillArchiveParser
     {
         $entries = array_values(array_filter(
             scandir($tmpDir),
-            fn ($e) => $e !== '.' && $e !== '..'
+            fn ($e): bool => $e !== '.' && $e !== '..'
         ));
 
         if (count($entries) === 1 && is_dir($tmpDir.'/'.$entries[0])) {
@@ -120,10 +121,12 @@ class SkillArchiveParser
         if (! str_starts_with($stripped, '---')) {
             return [];
         }
+
         $end = strpos($stripped, '---', 3);
         if ($end === false) {
             return [];
         }
+
         $yaml = substr($stripped, 3, $end - 3);
         $parsed = Yaml::parse($yaml);
 
@@ -139,9 +142,14 @@ class SkillArchiveParser
     {
         $files = [];
         foreach (scandir($dir) as $entry) {
-            if ($entry === '.' || $entry === '..') {
+            if ($entry === '.') {
                 continue;
             }
+
+            if ($entry === '..') {
+                continue;
+            }
+
             $abs = $dir.'/'.$entry;
             $rel = ltrim(substr($abs, strlen($root)), '/');
             if (is_dir($abs)) {
@@ -161,13 +169,20 @@ class SkillArchiveParser
         if (! is_dir($dir)) {
             return;
         }
+
         foreach (scandir($dir) as $entry) {
-            if ($entry === '.' || $entry === '..') {
+            if ($entry === '.') {
                 continue;
             }
+
+            if ($entry === '..') {
+                continue;
+            }
+
             $path = $dir.'/'.$entry;
             is_dir($path) ? $this->deleteDir($path) : unlink($path);
         }
+
         rmdir($dir);
     }
 

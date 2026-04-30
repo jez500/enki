@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { InfiniteScroll } from '@inertiajs/vue3';
-import type { EnkiSkillSummary, EnkiTint } from '@/types/enki';
+import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { formatTitle } from '@/lib/utils';
+import type { EnkiSkillSummary, EnkiTint } from '@/types/enki';
 import Monogram from './Monogram.vue';
 
 const props = defineProps<{
@@ -22,7 +22,11 @@ const listRef = useTemplateRef<HTMLDivElement>('listRef');
 
 function onKey(e: KeyboardEvent) {
     const tag = (document.activeElement as HTMLElement).tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+return;
+}
+
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         const idx = props.skills.findIndex((s) => s.slug === props.selectedSlug);
@@ -30,6 +34,7 @@ function onKey(e: KeyboardEvent) {
             e.key === 'ArrowDown'
                 ? Math.min(props.skills.length - 1, idx + 1)
                 : Math.max(0, idx - 1);
+
         if (props.skills[next]) {
             emit('update:selectedSlug', props.skills[next].slug);
         }
@@ -44,9 +49,11 @@ watch(
     (slug) => {
         const escaped = CSS.escape(slug);
         const el = listRef.value?.querySelector<HTMLElement>(`[data-slug="${escaped}"]`);
+
         if (el && listRef.value) {
             const parent = listRef.value;
             const top = el.offsetTop;
+
             if (top < parent.scrollTop || top + el.offsetHeight > parent.scrollTop + parent.clientHeight) {
                 parent.scrollTo({ top: top - 80, behavior: 'smooth' });
             }

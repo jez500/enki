@@ -114,16 +114,16 @@ class SkillSeeder extends Seeder
         $enkiSkill = Skill::updateOrCreate(
             ['slug' => 'enki'],
             [
-                'name'          => 'Enki',
-                'summary'       => 'Install skills from the library by name. Gives your agent the `/enki add` command.',
-                'author_id'     => $authors['platform'],
-                'version'       => '1.0.0',
-                'installs'      => 0,
+                'name' => 'Enki',
+                'summary' => 'Install skills from the library by name. Gives your agent the `/enki add` command.',
+                'author_id' => $authors['platform'],
+                'version' => '1.0.0',
+                'installs' => 0,
                 'monogram_tint' => 0,
-                'tags'          => ['skills', 'install', 'library'],
-                'readme'        => $enkiSkillMd,
-                'usage'         => $enkiUsage,
-                'updated_at'    => now(),
+                'tags' => ['skills', 'install', 'library'],
+                'readme' => $enkiSkillMd,
+                'usage' => $enkiUsage,
+                'updated_at' => now(),
             ]
         );
         $enkiSkill->categories()->sync([$categories['ops']]);

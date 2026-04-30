@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +17,7 @@ class AuthenticateWithApiToken
             return response()->json(['message' => 'API token required.'], 401);
         }
 
-        $user = \App\Models\User::where('api_token', $token)->first();
+        $user = User::where('api_token', $token)->first();
 
         if (! $user) {
             return response()->json(['message' => 'Invalid API token.'], 401);

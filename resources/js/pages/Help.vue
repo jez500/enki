@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { agentInstall } from '@/routes/help';
 import { help } from '@/routes';
+import { agentInstall } from '@/routes/help';
 
 defineProps<{
     docs: { slug: string; title: string }[];

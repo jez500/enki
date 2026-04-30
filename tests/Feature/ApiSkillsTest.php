@@ -7,18 +7,18 @@ use App\Models\User;
 use Database\Seeders\CategorySeeder;
 use Illuminate\Support\Str;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->token = Str::random(64);
     $this->user = User::factory()->create(['api_token' => $this->token]);
 });
 
 // GET /api/skills
 
-test('api skills index requires a valid token', function () {
+test('api skills index requires a valid token', function (): void {
     $this->getJson('/api/skills')->assertUnauthorized();
 });
 
-test('api skills index returns paginated skills', function () {
+test('api skills index returns paginated skills', function (): void {
     $author = Author::factory()->create();
     Skill::factory()->for($author)->create(['slug' => 'coding/skill-a', 'name' => 'Skill A']);
 
@@ -34,7 +34,7 @@ test('api skills index returns paginated skills', function () {
         ->assertJsonPath('data.1.slug', 'enki');
 });
 
-test('api skills index filters by search query', function () {
+test('api skills index filters by search query', function (): void {
     $author = Author::factory()->create();
     Skill::factory()->for($author)->create(['slug' => 'coding/match', 'name' => 'Matching Skill']);
     Skill::factory()->for($author)->create(['slug' => 'coding/other', 'name' => 'Other Skill']);
@@ -46,7 +46,7 @@ test('api skills index filters by search query', function () {
         ->assertJsonPath('data.0.slug', 'coding/match');
 });
 
-test('api skills index filters by category', function () {
+test('api skills index filters by category', function (): void {
     $this->seed(CategorySeeder::class);
     $author = Author::factory()->create();
     $coding = Category::where('slug', 'coding')->first();
@@ -62,7 +62,7 @@ test('api skills index filters by category', function () {
         ->assertJsonPath('data.0.slug', 'coding/in-cat');
 });
 
-test('api skills index does not expose private skills from other users', function () {
+test('api skills index does not expose private skills from other users', function (): void {
     $author = Author::factory()->create();
     $otherUser = User::factory()->create(['api_token' => null]);
     Skill::factory()->for($author)->create([
@@ -79,11 +79,11 @@ test('api skills index does not expose private skills from other users', functio
 
 // GET /api/skills/{slug}
 
-test('api skills show requires a valid token', function () {
+test('api skills show requires a valid token', function (): void {
     $this->getJson('/api/skills/coding/some-skill')->assertUnauthorized();
 });
 
-test('api skills show returns skill details with readme and usage', function () {
+test('api skills show returns skill details with readme and usage', function (): void {
     $author = Author::factory()->create();
     Skill::factory()->for($author)->create([
         'slug' => 'coding/detail-skill',
@@ -100,13 +100,13 @@ test('api skills show returns skill details with readme and usage', function () 
         ->assertJsonPath('usage', 'Use it like this.');
 });
 
-test('api skills show returns 404 for unknown slug', function () {
+test('api skills show returns 404 for unknown slug', function (): void {
     $this->withToken($this->token)
         ->getJson('/api/skills/does/not/exist')
         ->assertNotFound();
 });
 
-test('api skills show does not expose private skills from other users', function () {
+test('api skills show does not expose private skills from other users', function (): void {
     $author = Author::factory()->create();
     $otherUser = User::factory()->create(['api_token' => null]);
     Skill::factory()->for($author)->create([
@@ -122,11 +122,11 @@ test('api skills show does not expose private skills from other users', function
 
 // GET /api/categories
 
-test('api categories requires a valid token', function () {
+test('api categories requires a valid token', function (): void {
     $this->getJson('/api/categories')->assertUnauthorized();
 });
 
-test('api categories returns all categories', function () {
+test('api categories returns all categories', function (): void {
     $this->seed(CategorySeeder::class);
 
     $this->withToken($this->token)

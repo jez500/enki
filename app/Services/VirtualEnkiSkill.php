@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Symfony\Component\Yaml\Yaml;
 
@@ -10,8 +9,10 @@ class VirtualEnkiSkill
 {
     public const SLUG = 'enki';
 
-    private string $readme;
-    private string $usage;
+    private readonly string $readme;
+
+    private readonly string $usage;
+
     /** @var array<string, mixed> */
     private array $meta;
 
@@ -25,7 +26,7 @@ class VirtualEnkiSkill
     /**
      * Whether the virtual skill should appear given the full filter set.
      *
-     * @param array{q: string, category: string, sort: string, starred: bool, mySkills: bool, source: string} $filters
+     * @param  array{q: string, category: string, sort: string, starred: bool, mySkills: bool, source: string}  $filters
      */
     public function matchesFilters(array $filters): bool
     {
@@ -36,16 +37,18 @@ class VirtualEnkiSkill
      * Whether the virtual skill matches filters that don't include category
      * (used for skill counts, which tally across all categories).
      *
-     * @param array{q: string, category: string, sort: string, starred: bool, mySkills: bool, source: string} $filters
+     * @param  array{q: string, category: string, sort: string, starred: bool, mySkills: bool, source: string}  $filters
      */
     public function matchesBaseFilters(array $filters): bool
     {
         if ($filters['starred'] || $filters['mySkills']) {
             return false;
         }
+
         if ($filters['source'] === 'external') {
             return false;
         }
+
         if ($filters['q']) {
             $q = strtolower($filters['q']);
             $haystack = strtolower(implode(' ', array_filter([
@@ -160,10 +163,12 @@ class VirtualEnkiSkill
         if (! str_starts_with($trimmed, '---')) {
             return [];
         }
+
         $end = strpos($trimmed, "\n---", 3);
         if ($end === false) {
             return [];
         }
+
         $parsed = Yaml::parse(substr($trimmed, 3, $end - 3));
 
         return is_array($parsed) ? $parsed : [];

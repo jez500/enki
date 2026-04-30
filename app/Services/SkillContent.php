@@ -77,7 +77,7 @@ class SkillContent
             ];
         }
 
-        usort($result, fn ($a, $b) => strcmp($a['path'], $b['path']));
+        usort($result, fn (array $a, array $b): int => strcmp($a['path'], $b['path']));
 
         return $result;
     }
@@ -90,8 +90,9 @@ class SkillContent
     private function formatBytes(int $bytes): string
     {
         if ($bytes < 1024) {
-            return "{$bytes} B";
+            return $bytes.' B';
         }
+
         if ($bytes < 1_048_576) {
             return round($bytes / 1024, 1).' KB';
         }
@@ -107,16 +108,19 @@ class SkillContent
         if (! str_starts_with($trimmed, '---')) {
             return [];
         }
+
         $end = strpos($trimmed, "\n---", 3);
         if ($end === false) {
             return [];
         }
+
         $fields = [];
         foreach (explode("\n", trim(substr($trimmed, 3, $end - 3))) as $line) {
             $colon = strpos($line, ':');
             if ($colon === false) {
                 continue;
             }
+
             $key = trim(substr($line, 0, $colon));
             $val = trim(substr($line, $colon + 1));
             if ($key && $val && ! in_array($key, $omit, true)) {
@@ -133,6 +137,7 @@ class SkillContent
         if (! str_starts_with($trimmed, '---')) {
             return $markdown;
         }
+
         $end = strpos($trimmed, "\n---", 3);
         if ($end === false) {
             return $markdown;

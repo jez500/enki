@@ -7,7 +7,11 @@ const appRef = useTemplateRef<HTMLDivElement>('appRef');
 
 function applyTheme() {
     const el = appRef.value;
-    if (!el) return;
+
+    if (!el) {
+return;
+}
+
     el.setAttribute('data-theme', darkMode.value ? 'dark' : 'light');
     const baseBg = darkMode.value ? '#16140f' : '#faf8f3';
     const baseInk = darkMode.value ? '#f0ead8' : '#1a1814';

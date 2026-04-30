@@ -19,11 +19,11 @@ class UserController extends Controller
         return Inertia::render('enki/Admin', [
             'users' => User::orderBy('name')
                 ->get()
-                ->map(fn (User $u) => [
+                ->map(fn (User $u): array => [
                     'id' => $u->id,
                     'name' => $u->name,
                     'email' => $u->email,
-                    'role' => $u->role?->value ?? UserRole::Member->value,
+                    'role' => $u->role->value,
                     'createdAt' => $u->created_at->toDateString(),
                 ]),
             'roles' => collect(UserRole::cases())->map(fn ($r) => $r->value)->all(),

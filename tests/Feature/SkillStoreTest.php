@@ -7,22 +7,22 @@ use App\Services\SkillArchiveParser;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Storage::fake('skill_data');
 });
 
 // ── SkillArchiveParser unit tests ─────────────────────────────────────────────
 
-test('parser rejects archive without SKILL.md', function () {
+test('parser rejects archive without SKILL.md', function (): void {
     $zip = makeTestZip(['readme.txt' => 'hello']);
 
     expect(fn () => app(SkillArchiveParser::class)->parse($zip))
         ->toThrow(InvalidArgumentException::class, 'SKILL.md');
 });
 
-test('parser extracts name summary version tags and files from skill.yaml', function () {
+test('parser extracts name summary version tags and files from skill.yaml', function (): void {
     $zip = makeTestZip([
-        'SKILL.md'   => "# Hello\n\nContent here.",
+        'SKILL.md' => "# Hello\n\nContent here.",
         'skill.yaml' => "name: My Skill\nsummary: Does things\nversion: 2.0.0\ntags:\n  - writing\n",
         'prompt.txt' => 'Be helpful.',
     ]);
@@ -37,7 +37,7 @@ test('parser extracts name summary version tags and files from skill.yaml', func
         ->and(array_column($result['files'], 'path'))->toContain('prompt.txt');
 });
 
-test('parser falls back to frontmatter when no skill.yaml', function () {
+test('parser falls back to frontmatter when no skill.yaml', function (): void {
     $zip = makeTestZip([
         'SKILL.md' => "---\nname: Frontmatter Skill\ndescription: From frontmatter\n---\n\n# Body",
     ]);
@@ -48,9 +48,9 @@ test('parser falls back to frontmatter when no skill.yaml', function () {
         ->and($result['summary'])->toBe('From frontmatter');
 });
 
-test('parser unwraps single top-level directory', function () {
+test('parser unwraps single top-level directory', function (): void {
     $zip = makeTestZip([
-        'my-skill/SKILL.md'   => '# Wrapped',
+        'my-skill/SKILL.md' => '# Wrapped',
         'my-skill/skill.yaml' => "name: Wrapped Skill\nsummary: inside\nversion: 1.0.0\n",
     ]);
 
@@ -61,24 +61,24 @@ test('parser unwraps single top-level directory', function () {
 
 // ── Store endpoint tests ──────────────────────────────────────────────────────
 
-test('store endpoint requires authentication', function () {
+test('store endpoint requires authentication', function (): void {
     $this->postJson('/enki/skills', ['name' => 'Test', 'category' => 'writing', 'visibility' => 'public'])
         ->assertUnauthorized();
 });
 
-test('store creates skill with archive', function () {
+test('store creates skill with archive', function (): void {
     $user = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
 
     $zip = makeTestZip([
-        'SKILL.md'   => "# My New Skill\n\nContent.",
+        'SKILL.md' => "# My New Skill\n\nContent.",
         'skill.yaml' => "name: My New Skill\nsummary: Does great things\nversion: 1.0.0\ntags:\n  - writing\n  - tools\n",
     ]);
 
     $this->actingAs($user)
         ->call('POST', '/enki/skills', [
-            'name'       => 'My New Skill',
-            'category'   => 'writing',
+            'name' => 'My New Skill',
+            'category' => 'writing',
             'visibility' => 'public',
         ], [], ['archive' => $zip], ['Accept' => 'application/json'])
         ->assertOk()
@@ -88,19 +88,19 @@ test('store creates skill with archive', function () {
     expect(Skill::where('name', 'My New Skill')->exists())->toBeTrue();
 });
 
-test('store auto-generates slug from name', function () {
+test('store auto-generates slug from name', function (): void {
     $user = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
 
     $zip = makeTestZip([
-        'SKILL.md'   => "# Auto Slug Skill\n\nContent.",
+        'SKILL.md' => "# Auto Slug Skill\n\nContent.",
         'skill.yaml' => "name: Auto Slug Skill\nsummary: Slugged\nversion: 1.0.0\n",
     ]);
 
     $response = $this->actingAs($user)
         ->call('POST', '/enki/skills', [
-            'name'       => 'Auto Slug Skill',
-            'category'   => 'writing',
+            'name' => 'Auto Slug Skill',
+            'category' => 'writing',
             'visibility' => 'public',
         ], [], ['archive' => $zip], ['Accept' => 'application/json'])
         ->assertOk();
@@ -108,39 +108,39 @@ test('store auto-generates slug from name', function () {
     expect($response->json('slug'))->toBe('auto-slug-skill');
 });
 
-test('store creates private skill', function () {
+test('store creates private skill', function (): void {
     $user = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
 
     $zip = makeTestZip([
-        'SKILL.md'   => "# Secret Skill\n\nContent.",
+        'SKILL.md' => "# Secret Skill\n\nContent.",
         'skill.yaml' => "name: Secret Skill\nsummary: Private\nversion: 1.0.0\n",
     ]);
 
     $this->actingAs($user)
         ->call('POST', '/enki/skills', [
-            'name'       => 'Secret Skill',
-            'category'   => 'writing',
+            'name' => 'Secret Skill',
+            'category' => 'writing',
             'visibility' => 'private',
         ], [], ['archive' => $zip], ['Accept' => 'application/json'])
         ->assertOk()
         ->assertJsonPath('isPrivate', true);
 });
 
-test('store with valid archive writes files to filesystem', function () {
+test('store with valid archive writes files to filesystem', function (): void {
     $user = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
 
     $zip = makeTestZip([
-        'SKILL.md'   => "# Test Skill\n\nContent.",
+        'SKILL.md' => "# Test Skill\n\nContent.",
         'skill.yaml' => "name: Archive Skill\nsummary: From zip\nversion: 1.0.0\n",
         'prompt.txt' => 'Be helpful.',
     ]);
 
     $this->actingAs($user)
         ->call('POST', '/enki/skills', [
-            'name'       => 'Archive Skill',
-            'category'   => 'writing',
+            'name' => 'Archive Skill',
+            'category' => 'writing',
             'visibility' => 'public',
         ], [], ['archive' => $zip], ['Accept' => 'application/json'])
         ->assertOk();
@@ -150,7 +150,7 @@ test('store with valid archive writes files to filesystem', function () {
     expect($skill->getContent()->read('prompt.txt'))->toBe('Be helpful.');
 });
 
-test('store rejects archive without SKILL.md', function () {
+test('store rejects archive without SKILL.md', function (): void {
     $user = User::factory()->create();
     Category::factory()->create(['slug' => 'writing', 'label' => 'Writing']);
 
@@ -158,12 +158,12 @@ test('store rejects archive without SKILL.md', function () {
 
     $this->actingAs($user)
         ->call('POST', '/enki/skills', [
-            'name'       => 'Bad Skill',
-            'category'   => 'writing',
+            'name' => 'Bad Skill',
+            'category' => 'writing',
             'visibility' => 'public',
         ], [], ['archive' => $zip], ['Accept' => 'application/json'])
         ->assertStatus(422)
-        ->assertJsonPath('message', fn ($v) => str_contains($v, 'SKILL.md'));
+        ->assertJsonPath('message', fn ($v): bool => str_contains((string) $v, 'SKILL.md'));
 });
 
 // ── Helper ────────────────────────────────────────────────────────────────────
@@ -174,15 +174,18 @@ function makeTestZip(array $files): UploadedFile
     $zip = new ZipArchive;
     $zip->open($tmp, ZipArchive::CREATE);
     foreach ($files as $path => $content) {
-        $parts = explode('/', $path);
-        for ($i = 1; $i < count($parts); $i++) {
+        $parts = explode('/', (string) $path);
+        $counter = count($parts);
+        for ($i = 1; $i < $counter; $i++) {
             $dir = implode('/', array_slice($parts, 0, $i));
             if ($zip->locateName($dir.'/') === false) {
                 $zip->addEmptyDir($dir);
             }
         }
+
         $zip->addFromString($path, $content);
     }
+
     $zip->close();
 
     return new UploadedFile($tmp, 'skill.zip', 'application/zip', null, true);
