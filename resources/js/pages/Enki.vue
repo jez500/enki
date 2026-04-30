@@ -54,7 +54,9 @@ watch(
 type Modal = null | 'submit' | 'edit' | { kind: 'author'; id: string };
 const modal = ref<Modal>(null);
 const authorModal = computed(() =>
-    modal.value && typeof modal.value === 'object' && modal.value.kind === 'author'
+    modal.value &&
+    typeof modal.value === 'object' &&
+    modal.value.kind === 'author'
         ? (modal.value as { kind: 'author'; id: string })
         : null,
 );

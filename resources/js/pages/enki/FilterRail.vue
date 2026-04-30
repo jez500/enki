@@ -8,7 +8,7 @@ defineProps<{
     sort: string;
     showStarred: boolean;
     showMySkills: boolean;
-    source: string;
+    source: 'all' | 'internal' | 'external';
 }>();
 
 const emit = defineEmits<{
@@ -16,7 +16,7 @@ const emit = defineEmits<{
     'update:sort': [value: string];
     'update:showStarred': [value: boolean];
     'update:showMySkills': [value: boolean];
-    'update:source': [value: string];
+    'update:source': [value: 'all' | 'internal' | 'external'];
 }>();
 
 const sortOptions = [
@@ -25,11 +25,12 @@ const sortOptions = [
     { id: 'stars', label: 'Most starred' },
 ];
 
-const sourceOptions = [
-    { id: 'all', label: 'All' },
-    { id: 'internal', label: 'Internal' },
-    { id: 'external', label: 'External' },
-];
+const sourceOptions: { id: 'all' | 'internal' | 'external'; label: string }[] =
+    [
+        { id: 'all', label: 'All' },
+        { id: 'internal', label: 'Internal' },
+        { id: 'external', label: 'External' },
+    ];
 </script>
 
 <template>
