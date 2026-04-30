@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { router, useHttp } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import { star as skillStar } from '@/routes/enki/skill';
 import type {
     EnkiCategory,
     EnkiTint,
@@ -15,7 +16,6 @@ import FilterRail from './enki/FilterRail.vue';
 import SkillList from './enki/SkillList.vue';
 import SubmitModal from './enki/SubmitModal.vue';
 import TopBar from './enki/TopBar.vue';
-import { star as skillStar } from '@/routes/enki/skill';
 
 const props = defineProps<{
     categories: EnkiCategory[];
