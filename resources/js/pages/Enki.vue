@@ -226,7 +226,9 @@ function toggleStar(slug: string) {
         />
 
         <SkillList
-            :class="{ 'enki-panel--hidden': isMobile && mobilePanel === 'detail' }"
+            :class="{
+                'enki-panel--hidden': isMobile && mobilePanel === 'detail',
+            }"
             :skills="skills.data"
             :total="skills.total"
             :selectedSlug="selectedSlug"
@@ -238,7 +240,9 @@ function toggleStar(slug: string) {
 
         <DetailPane
             v-if="selectedSkill"
-            :class="{ 'enki-panel--hidden': isMobile && mobilePanel === 'list' }"
+            :class="{
+                'enki-panel--hidden': isMobile && mobilePanel === 'list',
+            }"
             :skill="selectedSkill"
             :authors="authors"
             :tints="tints"
