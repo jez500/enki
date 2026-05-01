@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router, useHttp } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { star as skillStar } from '@/routes/enki/skill';
 import type {
     EnkiCategory,
@@ -28,6 +28,29 @@ const props = defineProps<{
 }>();
 
 const http = useHttp();
+
+// ── Mobile state ──────────────────────────────────────────────────────────────
+const mq =
+    typeof window !== 'undefined'
+        ? window.matchMedia('(max-width: 767px)')
+        : null;
+const isMobile = ref(mq?.matches ?? false);
+const mobilePanel = ref<'list' | 'detail'>('list');
+const filterDrawerOpen = ref(false);
+
+onMounted(() => {
+    if (mq) {
+        const handler = (e: MediaQueryListEvent) => {
+            isMobile.value = e.matches;
+            if (!e.matches) {
+                mobilePanel.value = 'list';
+                filterDrawerOpen.value = false;
+            }
+        };
+        mq.addEventListener('change', handler);
+        onUnmounted(() => mq.removeEventListener('change', handler));
+    }
+});
 
 // ── Filters / search ─────────────────────────────────────────────────────────
 const query = ref(props.filters.q);
@@ -123,6 +146,9 @@ function selectSkill(slug: string) {
         only: ['selectedSkill'],
         preserveState: true,
     });
+    if (isMobile.value) {
+        mobilePanel.value = 'detail';
+    }
 }
 
 // ── Star toggling ─────────────────────────────────────────────────────────────
@@ -152,10 +178,37 @@ function toggleStar(slug: string) {
         :query="query"
         @update:query="query = $event"
         @submit="modal = 'submit'"
+        @filterClick="filterDrawerOpen = true"
+    />
+
+    <!-- Mobile filter drawer (inside .enki-app so CSS vars are in scope) -->
+    <Transition name="enki-drawer">
+        <div v-if="filterDrawerOpen" class="enki-filter-drawer">
+            <FilterRail
+                :categories="categories"
+                :counts="skillCounts"
+                :category="category"
+                :sort="sort"
+                :showStarred="showStarred"
+                :showMySkills="showMySkills"
+                :source="source"
+                @update:category="category = $event"
+                @update:sort="sort = $event"
+                @update:showStarred="showStarred = $event"
+                @update:showMySkills="showMySkills = $event"
+                @update:source="source = $event"
+            />
+        </div>
+    </Transition>
+    <div
+        v-if="filterDrawerOpen"
+        class="enki-filter-overlay"
+        @click="filterDrawerOpen = false"
     />
 
     <div class="enki-shell">
         <FilterRail
+            v-if="!isMobile"
             :categories="categories"
             :counts="skillCounts"
             :category="category"
@@ -171,6 +224,7 @@ function toggleStar(slug: string) {
         />
 
         <SkillList
+            :class="{ 'enki-panel--hidden': isMobile && mobilePanel === 'detail' }"
             :skills="skills.data"
             :total="skills.total"
             :selectedSlug="selectedSlug"
@@ -182,14 +236,20 @@ function toggleStar(slug: string) {
 
         <DetailPane
             v-if="selectedSkill"
+            :class="{ 'enki-panel--hidden': isMobile && mobilePanel === 'list' }"
             :skill="selectedSkill"
             :authors="authors"
             :tints="tints"
             @toggleStar="toggleStar"
             @authorClick="modal = { kind: 'author', id: $event }"
             @edit="modal = 'edit'"
+            @back="mobilePanel = 'list'"
         />
-        <div v-else class="enki-detail" />
+        <div
+            v-else
+            class="enki-detail"
+            :class="{ 'enki-panel--hidden': isMobile }"
+        />
     </div>
 
     <SubmitModal

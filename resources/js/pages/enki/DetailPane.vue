@@ -14,6 +14,7 @@ const emit = defineEmits<{
     toggleStar: [slug: string];
     authorClick: [authorId: string];
     edit: [];
+    back: [];
 }>();
 
 const tab = ref<'readme' | 'files' | 'usage' | 'changelog'>('readme');
@@ -292,6 +293,20 @@ function fileIconFill(kind: string) {
 
 <template>
     <section class="enki-detail">
+        <button type="button" class="enki-detail-back" @click="emit('back')">
+            <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+            >
+                <path d="M10 3L4 8l6 5" />
+            </svg>
+            Back to list
+        </button>
         <div class="enki-detail-scroll">
             <!-- Header -->
             <header class="enki-detail-head">

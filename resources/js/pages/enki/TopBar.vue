@@ -19,6 +19,7 @@ defineProps<{
 const emit = defineEmits<{
     'update:query': [value: string];
     submit: [];
+    filterClick: [];
 }>();
 
 const searchInput = useTemplateRef<HTMLInputElement>('searchInput');
@@ -108,10 +109,40 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         <nav class="enki-topnav">
             <button
                 type="button"
+                class="enki-navbtn enki-btn--ghost enki-filter-btn"
+                title="Filters"
+                @click="emit('filterClick')"
+            >
+                <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                >
+                    <path d="M2 4h12M4 8h8M6 12h4" />
+                </svg>
+            </button>
+            <button
+                type="button"
                 class="enki-navbtn enki-btn--ghost"
                 @click="emit('submit')"
             >
-                Submit a skill
+                <span class="enki-submit-label">Submit a skill</span>
+                <svg
+                    class="enki-submit-icon"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                >
+                    <path d="M8 3v10M3 8h10" />
+                </svg>
             </button>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>

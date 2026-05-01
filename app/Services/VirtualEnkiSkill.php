@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Str;
-use Symfony\Component\Yaml\Yaml;
 
 class VirtualEnkiSkill
 {
@@ -169,8 +168,15 @@ class VirtualEnkiSkill
             return [];
         }
 
-        $parsed = Yaml::parse(substr($trimmed, 3, $end - 3));
+        $result = [];
+        foreach (explode("\n", trim(substr($trimmed, 3, $end - 3))) as $line) {
+            if (preg_match('/^(\w[\w-]*):\s*(.+)$/', trim($line), $m)) {
+                $result[$m[1]] = trim($m[2], '"\'');
+            } elseif (preg_match('/^(\w[\w-]*):\s*\[([^\]]*)\]$/', trim($line), $m)) {
+                $result[$m[1]] = array_map(fn ($v) => trim($v, ' "\''), array_filter(explode(',', $m[2])));
+            }
+        }
 
-        return is_array($parsed) ? $parsed : [];
+        return $result;
     }
 }

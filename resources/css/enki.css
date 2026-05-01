@@ -2753,3 +2753,83 @@ a.enki-brand:hover {
     border-color: var(--rule);
     color: var(--ink);
 }
+
+/* ─── Mobile ≤ 767px ──────────────────────────────────────────────────────── */
+
+/* Default (desktop) states for new elements */
+.enki-detail-back { display: none; }
+.enki-submit-icon { display: none; }
+.enki-filter-btn  { display: none; }
+
+/* Filter drawer — rendered inside .enki-app so CSS vars are in scope */
+.enki-filter-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    background: var(--bg);
+    border-right: 1px solid var(--rule);
+    z-index: 50;
+    overflow-y: auto;
+}
+.enki-filter-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 24, 20, 0.35);
+    z-index: 49;
+}
+.enki-drawer-enter-active,
+.enki-drawer-leave-active { transition: transform 200ms ease; }
+.enki-drawer-enter-from,
+.enki-drawer-leave-to { transform: translateX(-100%); }
+
+/* Back button — hidden on desktop, flex on mobile */
+.enki-detail-back {
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: 0;
+    border-bottom: 1px solid var(--rule-2);
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: default;
+    width: 100%;
+    text-align: left;
+    flex-shrink: 0;
+}
+.enki-detail-back:hover { background: var(--surface-2); }
+
+@media (max-width: 767px) {
+    /* TopBar: compress to fit small screens */
+    .enki-topbar {
+        grid-template-columns: auto 1fr auto;
+        gap: 8px;
+        padding: 0 12px;
+    }
+    .enki-brand-sub { display: none; }
+    .enki-topbar .enki-kbd { display: none; }
+    .enki-submit-label { display: none; }
+    .enki-submit-icon { display: inline-flex; }
+    .enki-filter-btn { display: inline-flex; }
+
+    /* Shell: single column; rail moved to drawer */
+    .enki-shell { grid-template-columns: 1fr; }
+    .enki-shell .enki-rail { display: none; }
+
+    /* Keyboard nav hint not applicable on touch */
+    .enki-list-hint { display: none; }
+
+    /* Panel visibility switching */
+    .enki-panel--hidden { display: none !important; }
+
+    /* Back button */
+    .enki-detail-back { display: flex; }
+
+    /* Detail header: stack and hide monogram on small screens */
+    .enki-detail-head-inner { flex-direction: column; }
+    .enki-detail-head-inner > .enki-monogram { display: none; }
+    .enki-detail-head-top { flex-direction: column; }
+}
