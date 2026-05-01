@@ -33,7 +33,6 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
     Route::get('/enki', [EnkiController::class, 'index'])->name('enki');
     Route::post('/enki/skills', [EnkiController::class, 'store'])->name('enki.skills.store');
     Route::post('/enki/skills/import', [EnkiController::class, 'import'])->name('enki.import');

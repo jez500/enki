@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { router, useForm } from '@inertiajs/vue3';
+import * as LucideIcons from 'lucide-vue-next';
 import { ref } from 'vue';
 import EnkiAdminLayout from '@/layouts/EnkiAdminLayout.vue';
+import IconPicker from '@/pages/enki/IconPicker.vue';
 
 defineOptions({ layout: EnkiAdminLayout });
 
@@ -41,7 +43,10 @@ function startEdit(category: AdminCategory) {
     editForm.slug = category.slug;
     editForm.label = category.label;
     editForm.icon = category.icon ?? '';
-    editForm.color = { bg: category.color?.bg ?? '', fg: category.color?.fg ?? '' };
+    editForm.color = {
+        bg: category.color?.bg ?? '',
+        fg: category.color?.fg ?? '',
+    };
 }
 
 function cancelEdit() {
@@ -99,6 +104,7 @@ function deleteCategory(category: AdminCategory) {
         <div v-if="showCreate" class="enki-admin-create-form">
             <form @submit.prevent="submitCreate">
                 <div class="enki-admin-form-row">
+                    <IconPicker v-model="createForm.icon" />
                     <input
                         v-model="createForm.slug"
                         class="enki-admin-input"
@@ -110,11 +116,6 @@ function deleteCategory(category: AdminCategory) {
                         class="enki-admin-input"
                         placeholder="Label"
                         required
-                    />
-                    <input
-                        v-model="createForm.icon"
-                        class="enki-admin-input enki-admin-input--icon"
-                        placeholder="Icon"
                     />
                     <input
                         v-model="createForm.color.bg"
@@ -130,7 +131,10 @@ function deleteCategory(category: AdminCategory) {
                     <button
                         type="button"
                         class="enki-admin-cancel"
-                        @click="showCreate = false; createForm.reset()"
+                        @click="
+                            showCreate = false;
+                            createForm.reset();
+                        "
                     >
                         Cancel
                     </button>
@@ -142,7 +146,8 @@ function deleteCategory(category: AdminCategory) {
                     <span
                         v-for="(error, field) in createForm.errors"
                         :key="field"
-                    >{{ error }}</span>
+                        >{{ error }}</span
+                    >
                 </div>
             </form>
         </div>
@@ -168,7 +173,28 @@ function deleteCategory(category: AdminCategory) {
                     <template v-for="category in categories" :key="category.id">
                         <tr v-if="editingId !== category.id">
                             <td class="enki-admin-icon-cell">
-                                {{ category.icon ?? '—' }}
+                                <component
+                                    :is="
+                                        (
+                                            LucideIcons as Record<
+                                                string,
+                                                unknown
+                                            >
+                                        )[category.icon!]
+                                    "
+                                    v-if="
+                                        category.icon &&
+                                        (
+                                            LucideIcons as Record<
+                                                string,
+                                                unknown
+                                            >
+                                        )[category.icon]
+                                    "
+                                    :size="16"
+                                    :stroke-width="1.5"
+                                />
+                                <span v-else>—</span>
                             </td>
                             <td class="enki-admin-mono">{{ category.slug }}</td>
                             <td class="enki-admin-name">
@@ -207,9 +233,7 @@ function deleteCategory(category: AdminCategory) {
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                     >
-                                        <path
-                                            d="M11 2l3 3-8 8H3v-3l8-8z"
-                                        />
+                                        <path d="M11 2l3 3-8 8H3v-3l8-8z" />
                                     </svg>
                                 </button>
                                 <button
@@ -241,6 +265,7 @@ function deleteCategory(category: AdminCategory) {
                                     class="enki-admin-form-row"
                                     @submit.prevent="saveEdit(category)"
                                 >
+                                    <IconPicker v-model="editForm.icon" />
                                     <input
                                         v-model="editForm.slug"
                                         class="enki-admin-input"
@@ -252,11 +277,6 @@ function deleteCategory(category: AdminCategory) {
                                         class="enki-admin-input"
                                         placeholder="Label"
                                         required
-                                    />
-                                    <input
-                                        v-model="editForm.icon"
-                                        class="enki-admin-input enki-admin-input--icon"
-                                        placeholder="Icon"
                                     />
                                     <input
                                         v-model="editForm.color.bg"
@@ -287,9 +307,12 @@ function deleteCategory(category: AdminCategory) {
                                     class="enki-admin-errors"
                                 >
                                     <span
-                                        v-for="(error, field) in editForm.errors"
+                                        v-for="(
+                                            error, field
+                                        ) in editForm.errors"
                                         :key="field"
-                                    >{{ error }}</span>
+                                        >{{ error }}</span
+                                    >
                                 </div>
                             </td>
                         </tr>

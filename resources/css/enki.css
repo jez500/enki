@@ -2794,7 +2794,9 @@ a.enki-brand:hover {
     font-weight: 500;
     color: var(--ink-2);
     text-decoration: none;
-    transition: background 120ms, color 120ms;
+    transition:
+        background 120ms,
+        color 120ms;
 }
 
 .enki-admin-sidebar-link:hover {
@@ -2825,7 +2827,9 @@ a.enki-brand:hover {
     padding: 5px 12px;
     color: var(--ink-2);
     cursor: pointer;
-    transition: background 120ms, color 120ms;
+    transition:
+        background 120ms,
+        color 120ms;
 }
 
 .enki-admin-add:hover {
@@ -2866,6 +2870,78 @@ a.enki-brand:hover {
     text-align: center;
 }
 
+/* Icon picker */
+.enki-icon-picker {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.enki-icon-picker-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 26px;
+    border: 1px solid var(--ink-3);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink-1);
+    cursor: pointer;
+    transition: border-color 0.12s;
+}
+
+.enki-icon-picker-trigger:hover,
+.enki-icon-picker-trigger.is-open {
+    border-color: var(--ink-2);
+}
+
+.enki-icon-picker-empty {
+    font-size: 11px;
+    color: var(--ink-3);
+}
+
+.enki-icon-picker-grid {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: repeat(7, 28px);
+    gap: 2px;
+    padding: 6px;
+    background: var(--popover);
+    border: 1px solid var(--ink-3);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.enki-icon-picker-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition:
+        background 0.1s,
+        color 0.1s;
+}
+
+.enki-icon-picker-option:hover {
+    background: var(--surface-2);
+    color: var(--ink-1);
+}
+
+.enki-icon-picker-option.is-selected {
+    background: var(--ink-1);
+    color: var(--surface-1);
+    border-color: var(--ink-1);
+}
+
 .enki-admin-input--color {
     flex: 0 0 80px;
 }
@@ -2883,7 +2959,9 @@ a.enki-brand:hover {
     border-radius: 6px;
     padding: 5px 12px;
     cursor: pointer;
-    transition: background 120ms, color 120ms;
+    transition:
+        background 120ms,
+        color 120ms;
     white-space: nowrap;
 }
 

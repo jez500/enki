@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as LucideIcons from 'lucide-vue-next';
 import type { EnkiColor, EnkiTint } from '@/types/enki';
 
 const props = defineProps<{
@@ -11,6 +12,7 @@ const props = defineProps<{
 }>();
 
 const size = props.size ?? 38;
+const iconSize = Math.round(size * 0.52);
 
 const t = props.color ?? props.tints[props.tint % props.tints.length];
 const letters = props.name
@@ -20,7 +22,9 @@ const letters = props.name
     .join('')
     .toUpperCase();
 
-const iconSize = Math.round(size * 0.52);
+const iconComponent = props.icon
+    ? ((LucideIcons as Record<string, unknown>)[props.icon] ?? null)
+    : null;
 </script>
 
 <template>
@@ -34,20 +38,14 @@ const iconSize = Math.round(size * 0.52);
             fontSize: `${size * 0.36}px`,
         }"
     >
-        <svg
-            v-if="icon"
-            :width="iconSize"
-            :height="iconSize"
-            viewBox="0 0 16 16"
-            fill="none"
-            :stroke="t.fg"
-            stroke-width="1.4"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+        <component
+            :is="iconComponent"
+            v-if="iconComponent"
+            :size="iconSize"
+            :color="t.fg"
+            :stroke-width="1.4"
             aria-hidden="true"
-        >
-            <path :d="icon" />
-        </svg>
+        />
         <template v-else>{{ letters }}</template>
     </div>
 </template>

@@ -150,7 +150,10 @@ const currentPath = computed(() => page.url);
                     <Link
                         href="/enki/admin/users"
                         class="enki-admin-sidebar-link"
-                        :class="{ 'is-active': currentPath.startsWith('/enki/admin/users') }"
+                        :class="{
+                            'is-active':
+                                currentPath.startsWith('/enki/admin/users'),
+                        }"
                     >
                         <svg
                             width="14"
@@ -170,7 +173,11 @@ const currentPath = computed(() => page.url);
                     <Link
                         href="/enki/admin/categories"
                         class="enki-admin-sidebar-link"
-                        :class="{ 'is-active': currentPath.startsWith('/enki/admin/categories') }"
+                        :class="{
+                            'is-active': currentPath.startsWith(
+                                '/enki/admin/categories',
+                            ),
+                        }"
                     >
                         <svg
                             width="14"

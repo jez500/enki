@@ -1,6 +1,5 @@
 import { createInertiaApp } from '@inertiajs/vue3';
 import { initializeTheme } from '@/composables/useAppearance';
-import AppLayout from '@/layouts/AppLayout.vue';
 import EnkiLayout from '@/layouts/EnkiLayout.vue';
 import EnkiMinimalLayout from '@/layouts/EnkiMinimalLayout.vue';
 import EnkiSettingsLayout from '@/layouts/settings/EnkiLayout.vue';
@@ -20,11 +19,8 @@ createInertiaApp({
                 return EnkiMinimalLayout;
             case name.startsWith('settings/'):
                 return [EnkiMinimalLayout, EnkiSettingsLayout];
-            case name === 'Enki':
-            case name.startsWith('enki/'):
-                return EnkiLayout;
             default:
-                return AppLayout;
+                return EnkiLayout;
         }
     },
     progress: {
