@@ -42,6 +42,7 @@ onMounted(() => {
     if (mq) {
         const handler = (e: MediaQueryListEvent) => {
             isMobile.value = e.matches;
+
             if (!e.matches) {
                 mobilePanel.value = 'list';
                 filterDrawerOpen.value = false;
@@ -146,6 +147,7 @@ function selectSkill(slug: string) {
         only: ['selectedSkill'],
         preserveState: true,
     });
+
     if (isMobile.value) {
         mobilePanel.value = 'detail';
     }
