@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import EnkiMinimalLayout from '@/layouts/EnkiMinimalLayout.vue';
+import EnkiAdminLayout from '@/layouts/EnkiAdminLayout.vue';
 
-defineOptions({ layout: EnkiMinimalLayout });
+defineOptions({ layout: EnkiAdminLayout });
 
 type AdminUser = {
     id: number;

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "/usr/bin/php8.3",
+      "args": [
+        "/shares/ubuntu/home/jez/sites/enki/artisan",
+        "boost:mcp"
+      ]
+    }
+  }
+}
