@@ -173,7 +173,7 @@ class VirtualEnkiSkill
             if (preg_match('/^(\w[\w-]*):\s*(.+)$/', trim($line), $m)) {
                 $result[$m[1]] = trim($m[2], '"\'');
             } elseif (preg_match('/^(\w[\w-]*):\s*\[([^\]]*)\]$/', trim($line), $m)) {
-                $result[$m[1]] = array_map(fn ($v): string => trim((string) $v, ' "\''), array_filter(explode(',', $m[2])));
+                $result[$m[1]] = array_map(fn ($v): string => trim($v, ' "\''), array_filter(explode(',', $m[2])));
             }
         }
 
