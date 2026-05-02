@@ -134,6 +134,7 @@ function applyFilters(immediate = false) {
 
 watch(query, () => {
     applyFilters(false);
+
     if (isMobile.value && mobilePanel.value === 'detail') {
         mobilePanel.value = 'list';
     }
@@ -199,6 +200,8 @@ function toggleStar(slug: string) {
                 :showStarred="showStarred"
                 :showMySkills="showMySkills"
                 :source="source"
+                :skillTotal="skills.total"
+                :authorTotal="Object.keys(authors).length"
                 @update:category="category = $event"
                 @update:sort="sort = $event"
                 @update:showStarred="showStarred = $event"
@@ -223,6 +226,8 @@ function toggleStar(slug: string) {
             :showStarred="showStarred"
             :showMySkills="showMySkills"
             :source="source"
+            :skillTotal="skills.total"
+            :authorTotal="Object.keys(authors).length"
             @update:category="category = $event"
             @update:sort="sort = $event"
             @update:showStarred="showStarred = $event"

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import type { EnkiCategory } from '@/types/enki';
 
 defineProps<{
@@ -9,7 +11,12 @@ defineProps<{
     showStarred: boolean;
     showMySkills: boolean;
     source: 'all' | 'internal' | 'external';
+    skillTotal: number;
+    authorTotal: number;
 }>();
+
+const page = usePage();
+const appVersion = computed(() => (page.props as any).appVersion ?? 'dev');
 
 const emit = defineEmits<{
     'update:category': [value: string];
@@ -142,9 +149,11 @@ const sourceOptions: { id: 'all' | 'internal' | 'external'; label: string }[] =
         </div>
 
         <div class="enki-rail-foot">
-            <div class="enki-rail-meta">487 skills · 62 authors</div>
+            <div class="enki-rail-meta">
+                {{ skillTotal }} skills · {{ authorTotal }} authors
+            </div>
             <div class="enki-rail-meta enki-rail-meta--mono">
-                v2026.04 · stable
+                {{ appVersion }}
             </div>
         </div>
     </aside>
