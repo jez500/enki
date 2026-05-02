@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\DuplicateSkillException;
 use App\Models\Author;
 use App\Models\Skill;
 use FilesystemIterator;
@@ -30,10 +31,14 @@ class GitHubSkillSync
         throw new \InvalidArgumentException('URL must be a GitHub tree URL: https://github.com/{owner}/{repo}/tree/{branch}[/{path}]');
     }
 
-    public function import(string $url, ?int $createdByUserId = null): Skill
+    public function import(string $url, ?int $createdByUserId = null, string $visibility = 'public'): Skill
     {
         $parts = $this->parseUrl($url);
         $data = $this->fetchSkillData($parts);
+
+        if (Skill::where('slug', $data['slug'])->exists()) {
+            throw new DuplicateSkillException($data['slug']);
+        }
 
         $author = Author::firstOrCreate(
             ['slug' => $data['authorSlug']],
@@ -52,6 +57,7 @@ class GitHubSkillSync
             'usage' => $data['usage'],
             'github_url' => $url,
             'created_by_user_id' => $createdByUserId,
+            'visibility' => $visibility,
         ]);
 
         if ($data['updatedAt']) {

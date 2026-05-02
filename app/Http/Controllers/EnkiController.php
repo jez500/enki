@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\DuplicateSkillException;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Skill;
@@ -115,10 +116,17 @@ class EnkiController extends Controller
     {
         $request->validate([
             'github_url' => ['required', 'url', 'regex:#^https://github\.com/[^/]+/[^/]+/tree/.+#'],
+            'visibility' => ['nullable', 'in:public,private'],
         ]);
 
         try {
-            $skill = app(GitHubSkillSync::class)->import($request->github_url, auth()->id());
+            $skill = app(GitHubSkillSync::class)->import(
+                $request->github_url,
+                auth()->id(),
+                $request->input('visibility', 'public'),
+            );
+        } catch (DuplicateSkillException $e) {
+            return response()->json(['message' => $e->getMessage(), 'existing_slug' => $e->slug], 422);
         } catch (\InvalidArgumentException|\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }

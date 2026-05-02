@@ -15,6 +15,12 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'version' => (function () {
+        $path = base_path('VERSION');
+
+        return file_exists($path) && filled($v = trim(file_get_contents($path))) ? $v : 'dev';
+    })(),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

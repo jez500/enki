@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, provide, ref, useTemplateRef, watch } from 'vue';
 
-const darkMode = ref(localStorage.getItem('enki-dark') !== 'false');
-const accent = ref(localStorage.getItem('enki-accent') ?? '#4a4a4a');
+const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+const darkMode = ref(storage?.getItem('enki-dark') !== 'false');
+const accent = ref(storage?.getItem('enki-accent') ?? '#3d6b4a');
 const appRef = useTemplateRef<HTMLDivElement>('appRef');
 
 function applyTheme() {
@@ -26,8 +27,8 @@ function applyTheme() {
     );
 }
 
-watch(accent, (v) => localStorage.setItem('enki-accent', v));
-watch(darkMode, (v) => localStorage.setItem('enki-dark', String(v)));
+watch(accent, (v) => storage?.setItem('enki-accent', v));
+watch(darkMode, (v) => storage?.setItem('enki-dark', String(v)));
 
 onMounted(applyTheme);
 watch([darkMode, accent], applyTheme);

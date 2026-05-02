@@ -945,6 +945,7 @@ a.enki-brand:hover {
 .enki-install-cmd {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     background: #1a1814;
     color: #f0ead8;
@@ -958,6 +959,8 @@ a.enki-brand:hover {
 }
 .enki-install-text {
     flex: 1;
+    min-width: 0;
+    word-break: break-all;
 }
 .enki-install-copy {
     display: inline-flex;
@@ -2582,6 +2585,11 @@ a.enki-brand:hover {
     color: #c0392b;
     margin: 0;
 }
+.enki-field-error-link {
+    margin-left: 4px;
+    color: inherit;
+    text-decoration: underline;
+}
 .enki-field-hint {
     font-size: 12px;
     color: var(--ink-3);
@@ -2767,6 +2775,8 @@ a.enki-brand:hover {
     border-right: 1px solid var(--rule);
     padding: 28px 16px;
     background: var(--surface);
+    display: flex;
+    flex-direction: column;
 }
 
 .enki-admin-sidebar-heading {
@@ -2807,6 +2817,15 @@ a.enki-brand:hover {
 .enki-admin-sidebar-link.is-active {
     background: var(--accent-soft);
     color: var(--accent-ink);
+}
+
+.enki-admin-sidebar-version {
+    margin: auto 0 0;
+    padding: 0 8px;
+    font-family: var(--mono-font);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
 }
 
 .enki-admin-main {
@@ -3057,7 +3076,7 @@ a.enki-brand:hover {
 
 /* ─── Mobile ≤ 767px ──────────────────────────────────────────────────────── */
 
-/* Default (desktop) states for new elements */
+/* Default (desktop) states for mobile-only elements */
 .enki-detail-back {
     display: none;
 }
@@ -3066,6 +3085,29 @@ a.enki-brand:hover {
 }
 .enki-filter-btn {
     display: none;
+}
+.enki-search-btn {
+    display: none;
+}
+.enki-mobile-search-bar {
+    display: none;
+}
+
+/* Close button inside mobile search */
+.enki-search-close {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.enki-search-close:hover {
+    color: var(--ink);
 }
 
 /* Filter drawer — rendered inside .enki-app so CSS vars are in scope */
@@ -3115,17 +3157,48 @@ a.enki-brand:hover {
     background: var(--surface-2);
 }
 
+/* Admin sidebar menu button — hidden on desktop */
+.enki-admin-menu-btn {
+    display: none;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 7px;
+    border-radius: 7px;
+    color: var(--ink-2);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.enki-admin-menu-btn:hover {
+    background: var(--surface-2);
+}
+
 @media (max-width: 767px) {
-    /* TopBar: compress to fit small screens */
+    /* TopBar: flex layout so brand + nav sit at opposite ends */
     .enki-topbar {
-        grid-template-columns: auto 1fr auto;
-        gap: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 4px;
         padding: 0 12px;
     }
-    .enki-brand-sub {
+    .enki-search--topbar {
         display: none;
     }
-    .enki-topbar .enki-kbd {
+    .enki-search-btn {
+        display: inline-flex;
+    }
+    .enki-mobile-search-bar {
+        display: block;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+    }
+    .enki-mobile-search-bar .enki-search {
+        max-width: none;
+        margin: 0;
+    }
+    .enki-brand-sub {
         display: none;
     }
     .enki-submit-label {
@@ -3170,5 +3243,30 @@ a.enki-brand:hover {
     }
     .enki-detail-head-top {
         flex-direction: column;
+    }
+
+    /* Admin layout: sidebar becomes a drawer */
+    .enki-admin-menu-btn {
+        display: flex;
+    }
+    .enki-topbar--minimal {
+        grid-template-columns: auto 1fr auto;
+    }
+    .enki-admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        width: 220px;
+        transform: translateX(-100%);
+        transition: transform 200ms ease;
+        padding-top: 60px;
+    }
+    .enki-admin-sidebar.is-open {
+        transform: translateX(0);
+    }
+    .enki-admin {
+        padding: 20px;
     }
 }

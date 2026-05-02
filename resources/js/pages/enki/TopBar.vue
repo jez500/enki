@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
+import {
+    computed,
+    nextTick,
+    onMounted,
+    onUnmounted,
+    ref,
+    useTemplateRef,
+} from 'vue';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,6 +30,18 @@ const emit = defineEmits<{
 }>();
 
 const searchInput = useTemplateRef<HTMLInputElement>('searchInput');
+const mobileSearchInput = useTemplateRef<HTMLInputElement>('mobileSearchInput');
+const searchOpen = ref(false);
+
+async function openMobileSearch() {
+    searchOpen.value = true;
+    await nextTick();
+    mobileSearchInput.value?.focus();
+}
+
+function closeMobileSearch() {
+    searchOpen.value = false;
+}
 
 const page = usePage();
 const authUser = computed(() => (page.props.auth as { user: User })?.user);
@@ -46,8 +65,14 @@ function onKey(e: KeyboardEvent) {
         searchInput.value?.focus();
     }
 
-    if (e.key === 'Escape' && document.activeElement === searchInput.value) {
-        searchInput.value?.blur();
+    if (e.key === 'Escape') {
+        if (document.activeElement === searchInput.value) {
+            searchInput.value?.blur();
+        }
+
+        if (searchOpen.value) {
+            closeMobileSearch();
+        }
     }
 }
 
@@ -77,7 +102,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
             <span class="enki-brand-sub">skills</span>
         </Link>
 
-        <div class="enki-search">
+        <div class="enki-search enki-search--topbar">
             <svg
                 width="14"
                 height="14"
@@ -107,6 +132,24 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         </div>
 
         <nav class="enki-topnav">
+            <button
+                type="button"
+                class="enki-navbtn enki-btn--ghost enki-search-btn"
+                title="Search"
+                @click="openMobileSearch"
+            >
+                <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                >
+                    <circle cx="7" cy="7" r="4.5" />
+                    <path d="M10.5 10.5L13 13" stroke-linecap="round" />
+                </svg>
+            </button>
             <button
                 type="button"
                 class="enki-navbtn enki-btn--ghost enki-filter-btn"
@@ -194,4 +237,52 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
             </DropdownMenu>
         </nav>
     </header>
+
+    <div v-if="searchOpen" class="enki-mobile-search-bar">
+        <div class="enki-search">
+            <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                style="opacity: 0.45"
+            >
+                <circle cx="7" cy="7" r="4.5" />
+                <path d="M10.5 10.5L13 13" stroke-linecap="round" />
+            </svg>
+            <input
+                ref="mobileSearchInput"
+                type="text"
+                :value="query"
+                @input="
+                    emit(
+                        'update:query',
+                        ($event.target as HTMLInputElement).value,
+                    )
+                "
+                placeholder="Search skills, tags, authors…"
+                spellcheck="false"
+            />
+            <button
+                type="button"
+                class="enki-search-close"
+                title="Close search"
+                @click="closeMobileSearch"
+            >
+                <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                >
+                    <path d="M3 3l10 10M13 3L3 13" />
+                </svg>
+            </button>
+        </div>
+    </div>
 </template>

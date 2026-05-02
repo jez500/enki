@@ -32,8 +32,10 @@ const archiveFile = ref<File | null>(null);
 const archiveInputRef = ref<HTMLInputElement | null>(null);
 
 const githubUrl = ref('');
+const importVisibility = ref<'public' | 'private'>('public');
 const importing = ref(false);
 const importError = ref<string | null>(null);
+const importErrorSlug = ref<string | null>(null);
 const submitting = ref(false);
 const submitError = ref<string | null>(null);
 const submitted = ref(false);
@@ -74,6 +76,7 @@ function clearArchive() {
 async function importFromGitHub() {
     importing.value = true;
     importError.value = null;
+    importErrorSlug.value = null;
 
     try {
         const res = await fetch('/enki/skills/import', {
@@ -83,12 +86,16 @@ async function importFromGitHub() {
                 Accept: 'application/json',
                 'X-CSRF-TOKEN': csrfToken(),
             },
-            body: JSON.stringify({ github_url: githubUrl.value }),
+            body: JSON.stringify({
+                github_url: githubUrl.value,
+                visibility: importVisibility.value,
+            }),
         });
         const body = await res.json().catch(() => ({}));
 
         if (!res.ok) {
             importError.value = body.message ?? 'Import failed.';
+            importErrorSlug.value = body.existing_slug ?? null;
         } else {
             submittedName.value = body.name ?? githubUrl.value;
             submitted.value = true;
@@ -319,8 +326,54 @@ async function deleteSkill() {
                             autocomplete="off"
                         />
                     </label>
+                    <fieldset
+                        class="enki-field"
+                        style="border: none; padding: 0; margin: 0"
+                    >
+                        <span>Visibility</span>
+                        <div class="enki-radiogroup">
+                            <label
+                                v-for="o in [
+                                    {
+                                        id: 'public',
+                                        label: 'Everyone',
+                                        desc: 'All can see',
+                                    },
+                                    {
+                                        id: 'private',
+                                        label: 'Private',
+                                        desc: 'Only you',
+                                    },
+                                ]"
+                                :key="o.id"
+                                :class="[
+                                    'enki-radiochip',
+                                    { 'is-on': importVisibility === o.id },
+                                ]"
+                            >
+                                <input
+                                    type="radio"
+                                    name="import-vis"
+                                    :value="o.id"
+                                    v-model="importVisibility"
+                                />
+                                <span class="enki-radiochip-label">{{
+                                    o.label
+                                }}</span>
+                                <span class="enki-radiochip-desc">{{
+                                    o.desc
+                                }}</span>
+                            </label>
+                        </div>
+                    </fieldset>
                     <p v-if="importError" class="enki-field-error">
                         {{ importError }}
+                        <a
+                            v-if="importErrorSlug"
+                            :href="'/enki/skills/' + importErrorSlug"
+                            class="enki-field-error-link"
+                            >View existing skill</a
+                        >
                     </p>
                     <p class="enki-field-hint">
                         Repo root or subdirectory URL — must contain

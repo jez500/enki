@@ -14,8 +14,9 @@ import type { User } from '@/types';
 
 defineOptions({ inheritAttrs: false });
 
-const darkMode = ref(localStorage.getItem('enki-dark') !== 'false');
-const accent = ref(localStorage.getItem('enki-accent') ?? '#3d6b4a');
+const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+const darkMode = ref(storage?.getItem('enki-dark') !== 'false');
+const accent = ref(storage?.getItem('enki-accent') ?? '#3d6b4a');
 const appRef = useTemplateRef<HTMLDivElement>('appRef');
 
 function applyTheme() {
@@ -39,8 +40,8 @@ function applyTheme() {
     );
 }
 
-watch(accent, (v) => localStorage.setItem('enki-accent', v));
-watch(darkMode, (v) => localStorage.setItem('enki-dark', String(v)));
+watch(accent, (v) => storage?.setItem('enki-accent', v));
+watch(darkMode, (v) => storage?.setItem('enki-dark', String(v)));
 
 onMounted(applyTheme);
 watch([darkMode, accent], applyTheme);
@@ -63,6 +64,12 @@ const userInitials = computed(() => {
 const isAdmin = computed(() => authUser.value?.role === 'admin');
 
 const currentPath = computed(() => page.url);
+const appVersion = computed(() => (page.props as any).appVersion ?? 'dev');
+
+const sidebarOpen = ref(false);
+watch(currentPath, () => {
+    sidebarOpen.value = false;
+});
 </script>
 
 <template>
@@ -72,6 +79,24 @@ const currentPath = computed(() => page.url);
         :data-theme="darkMode ? 'dark' : 'light'"
     >
         <header class="enki-topbar enki-topbar--minimal">
+            <button
+                type="button"
+                class="enki-admin-menu-btn"
+                title="Open menu"
+                @click="sidebarOpen = !sidebarOpen"
+            >
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                >
+                    <path d="M2 4h12M2 8h12M2 12h12" />
+                </svg>
+            </button>
             <Link href="/enki" class="enki-brand">
                 <div class="enki-brand-mark">
                     <svg
@@ -143,8 +168,19 @@ const currentPath = computed(() => page.url);
             </nav>
         </header>
 
+        <Transition name="enki-drawer">
+            <div
+                v-if="sidebarOpen"
+                class="enki-filter-overlay"
+                @click="sidebarOpen = false"
+            />
+        </Transition>
+
         <div class="enki-admin-shell">
-            <aside class="enki-admin-sidebar">
+            <aside
+                class="enki-admin-sidebar"
+                :class="{ 'is-open': sidebarOpen }"
+            >
                 <p class="enki-admin-sidebar-heading">Admin</p>
                 <nav class="enki-admin-sidebar-nav">
                     <Link
@@ -197,6 +233,7 @@ const currentPath = computed(() => page.url);
                         Categories
                     </Link>
                 </nav>
+                <p class="enki-admin-sidebar-version">{{ appVersion }}</p>
             </aside>
 
             <main class="enki-admin-main">

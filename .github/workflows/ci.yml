@@ -88,6 +88,9 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,value=latest
 
+      - name: Write version file
+        run: echo "${{ steps.meta.outputs.version }}" > VERSION
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
