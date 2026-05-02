@@ -82,207 +82,215 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
 
 <template>
     <header class="enki-topbar">
-        <Link href="/enki" class="enki-brand">
-            <div class="enki-brand-mark">
-                <svg
-                    viewBox="0 0 24 24"
-                    width="20"
-                    height="20"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                >
-                    <path
-                        d="M4 7l8-4 8 4M4 7v10l8 4 8-4V7M4 7l8 4M20 7l-8 4M12 11v10"
-                    />
-                </svg>
-            </div>
-            <span class="enki-brand-name">enki</span>
-            <span class="enki-brand-sub">skills</span>
-        </Link>
+        <!-- display:contents on desktop → brand/search/nav are direct grid children -->
+        <div class="enki-topbar-bar">
+            <Link href="/enki" class="enki-brand">
+                <div class="enki-brand-mark">
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                    >
+                        <path
+                            d="M4 7l8-4 8 4M4 7v10l8 4 8-4V7M4 7l8 4M20 7l-8 4M12 11v10"
+                        />
+                    </svg>
+                </div>
+                <span class="enki-brand-name">enki</span>
+                <span class="enki-brand-sub">skills</span>
+            </Link>
 
-        <div class="enki-search enki-search--topbar">
-            <svg
-                width="14"
-                height="14"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.4"
-                style="opacity: 0.45"
-            >
-                <circle cx="7" cy="7" r="4.5" />
-                <path d="M10.5 10.5L13 13" stroke-linecap="round" />
-            </svg>
-            <input
-                ref="searchInput"
-                type="text"
-                :value="query"
-                @input="
-                    emit(
-                        'update:query',
-                        ($event.target as HTMLInputElement).value,
-                    )
-                "
-                placeholder="Search 487 skills, tags, authors…"
-                spellcheck="false"
-            />
-            <kbd class="enki-kbd">/</kbd>
-        </div>
-
-        <nav class="enki-topnav">
-            <button
-                type="button"
-                class="enki-navbtn enki-btn--ghost enki-search-btn"
-                title="Search"
-                @click="openMobileSearch"
-            >
+            <div class="enki-search enki-search--topbar">
                 <svg
-                    width="15"
-                    height="15"
+                    width="14"
+                    height="14"
                     viewBox="0 0 16 16"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="1.4"
+                    style="opacity: 0.45"
                 >
                     <circle cx="7" cy="7" r="4.5" />
                     <path d="M10.5 10.5L13 13" stroke-linecap="round" />
                 </svg>
-            </button>
-            <button
-                type="button"
-                class="enki-navbtn enki-btn--ghost enki-filter-btn"
-                title="Filters"
-                @click="emit('filterClick')"
-            >
-                <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                >
-                    <path d="M2 4h12M4 8h8M6 12h4" />
-                </svg>
-            </button>
-            <button
-                type="button"
-                class="enki-navbtn enki-btn--ghost"
-                @click="emit('submit')"
-            >
-                <span class="enki-submit-label">Submit a skill</span>
-                <svg
-                    class="enki-submit-icon"
-                    width="15"
-                    height="15"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                >
-                    <path d="M8 3v10M3 8h10" />
-                </svg>
-            </button>
-            <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <button
-                        type="button"
-                        class="enki-avatar"
-                        :title="
-                            (page.props.auth as any)?.user?.name ?? 'Account'
-                        "
-                    >
-                        {{ userInitials }}
-                    </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" class="w-44">
-                    <DropdownMenuItem v-if="isAdmin" as-child>
-                        <Link
-                            href="/enki/admin/users"
-                            class="block w-full cursor-pointer"
-                        >
-                            Admin
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem as-child>
-                        <Link
-                            :href="profileEdit().url"
-                            class="block w-full cursor-pointer"
-                        >
-                            Settings
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem as-child>
-                        <Link href="/help" class="block w-full cursor-pointer">
-                            Help
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem as-child>
-                        <Link
-                            :href="logout().url"
-                            method="post"
-                            as="button"
-                            class="block w-full cursor-pointer"
-                            @click="router.flushAll()"
-                        >
-                            Logout
-                        </Link>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </nav>
-    </header>
+                <input
+                    ref="searchInput"
+                    type="text"
+                    :value="query"
+                    @input="
+                        emit(
+                            'update:query',
+                            ($event.target as HTMLInputElement).value,
+                        )
+                    "
+                    placeholder="Search 487 skills, tags, authors…"
+                    spellcheck="false"
+                />
+                <kbd class="enki-kbd">/</kbd>
+            </div>
 
-    <div v-if="searchOpen" class="enki-mobile-search-bar">
-        <div class="enki-search">
-            <svg
-                width="14"
-                height="14"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.4"
-                style="opacity: 0.45"
-            >
-                <circle cx="7" cy="7" r="4.5" />
-                <path d="M10.5 10.5L13 13" stroke-linecap="round" />
-            </svg>
-            <input
-                ref="mobileSearchInput"
-                type="text"
-                :value="query"
-                @input="
-                    emit(
-                        'update:query',
-                        ($event.target as HTMLInputElement).value,
-                    )
-                "
-                placeholder="Search skills, tags, authors…"
-                spellcheck="false"
-            />
-            <button
-                type="button"
-                class="enki-search-close"
-                title="Close search"
-                @click="closeMobileSearch"
-            >
+            <nav class="enki-topnav">
+                <button
+                    type="button"
+                    class="enki-navbtn enki-btn--ghost enki-search-btn"
+                    title="Search"
+                    @click="openMobileSearch"
+                >
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                    >
+                        <circle cx="7" cy="7" r="4.5" />
+                        <path d="M10.5 10.5L13 13" stroke-linecap="round" />
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    class="enki-navbtn enki-btn--ghost enki-filter-btn"
+                    title="Filters"
+                    @click="emit('filterClick')"
+                >
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                    >
+                        <path d="M2 4h12M4 8h8M6 12h4" />
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    class="enki-navbtn enki-btn--ghost"
+                    @click="emit('submit')"
+                >
+                    <span class="enki-submit-label">Submit a skill</span>
+                    <svg
+                        class="enki-submit-icon"
+                        width="15"
+                        height="15"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                    >
+                        <path d="M8 3v10M3 8h10" />
+                    </svg>
+                </button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger as-child>
+                        <button
+                            type="button"
+                            class="enki-avatar"
+                            :title="
+                                (page.props.auth as any)?.user?.name ??
+                                'Account'
+                            "
+                        >
+                            {{ userInitials }}
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" class="w-44">
+                        <DropdownMenuItem v-if="isAdmin" as-child>
+                            <Link
+                                href="/enki/admin/users"
+                                class="block w-full cursor-pointer"
+                            >
+                                Admin
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem as-child>
+                            <Link
+                                :href="profileEdit().url"
+                                class="block w-full cursor-pointer"
+                            >
+                                Settings
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem as-child>
+                            <Link
+                                href="/help"
+                                class="block w-full cursor-pointer"
+                            >
+                                Help
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem as-child>
+                            <Link
+                                :href="logout().url"
+                                method="post"
+                                as="button"
+                                class="block w-full cursor-pointer"
+                                @click="router.flushAll()"
+                            >
+                                Logout
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </nav>
+        </div>
+
+        <!-- Mobile search row — lives inside header so it doesn't disturb the app grid -->
+        <div v-if="searchOpen" class="enki-topbar-search">
+            <div class="enki-search">
                 <svg
-                    width="13"
-                    height="13"
+                    width="14"
+                    height="14"
                     viewBox="0 0 16 16"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
+                    stroke-width="1.4"
+                    style="opacity: 0.45"
                 >
-                    <path d="M3 3l10 10M13 3L3 13" />
+                    <circle cx="7" cy="7" r="4.5" />
+                    <path d="M10.5 10.5L13 13" stroke-linecap="round" />
                 </svg>
-            </button>
+                <input
+                    ref="mobileSearchInput"
+                    type="text"
+                    :value="query"
+                    @input="
+                        emit(
+                            'update:query',
+                            ($event.target as HTMLInputElement).value,
+                        )
+                    "
+                    placeholder="Search skills, tags, authors…"
+                    spellcheck="false"
+                />
+                <button
+                    type="button"
+                    class="enki-search-close"
+                    title="Close search"
+                    @click="closeMobileSearch"
+                >
+                    <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                    >
+                        <path d="M3 3l10 10M13 3L3 13" />
+                    </svg>
+                </button>
+            </div>
         </div>
-    </div>
+    </header>
 </template>

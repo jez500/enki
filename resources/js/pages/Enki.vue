@@ -132,7 +132,12 @@ function applyFilters(immediate = false) {
     }
 }
 
-watch(query, () => applyFilters(false));
+watch(query, () => {
+    applyFilters(false);
+    if (isMobile.value && mobilePanel.value === 'detail') {
+        mobilePanel.value = 'list';
+    }
+});
 watch([category, sort, showStarred, showMySkills, source], () =>
     applyFilters(true),
 );
