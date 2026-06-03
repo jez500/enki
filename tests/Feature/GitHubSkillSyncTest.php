@@ -97,8 +97,31 @@ test('parseUrl accepts repo root url with trailing slash', function (): void {
     expect($parts['path'])->toBe('');
 });
 
+test('parseUrl extracts owner repo from bare repo url with empty branch and path', function (): void {
+    $service = app(GitHubSkillSync::class);
+    $parts = $service->parseUrl('https://github.com/henricook/claude-glab-skill');
+
+    expect($parts)->toBe([
+        'owner' => 'henricook',
+        'repo' => 'claude-glab-skill',
+        'branch' => '',
+        'path' => '',
+    ]);
+});
+
+test('parseUrl strips .git suffix and trailing slash from bare repo url', function (string $url): void {
+    $parts = app(GitHubSkillSync::class)->parseUrl($url);
+
+    expect($parts['repo'])->toBe('claude-glab-skill')
+        ->and($parts['branch'])->toBe('')
+        ->and($parts['path'])->toBe('');
+})->with([
+    'https://github.com/henricook/claude-glab-skill.git',
+    'https://github.com/henricook/claude-glab-skill/',
+]);
+
 test('parseUrl rejects invalid url', function (): void {
-    expect(fn () => app(GitHubSkillSync::class)->parseUrl('https://github.com/anthropics/skills'))
+    expect(fn () => app(GitHubSkillSync::class)->parseUrl('https://github.com/anthropics'))
         ->toThrow(InvalidArgumentException::class);
 });
 
@@ -145,6 +168,27 @@ test('import from repo root url uses repo name as slug', function (): void {
 
     expect($skill->slug)->toBe('my-repo')
         ->and($skill->name)->toBe('Root Skill');
+});
+
+test('import from bare repo url resolves the default branch', function (): void {
+    Http::fake([
+        'https://api.github.com/repos/henricook/claude-glab-skill' => Http::response(['default_branch' => 'main']),
+        'https://github.com/henricook/claude-glab-skill/archive/refs/heads/main.zip' => Http::response(
+            fakeRepoZip('claude-glab-skill-main', [
+                'SKILL.md' => "---\nname: Glab Skill\ndescription: GitLab helpers\n---\n\nReadme body.",
+            ]),
+            200,
+            ['Content-Type' => 'application/zip'],
+        ),
+        'https://api.github.com/repos/henricook/claude-glab-skill/commits*' => Http::response(fakeCommits()),
+    ]);
+
+    $skill = app(GitHubSkillSync::class)->import('https://github.com/henricook/claude-glab-skill');
+
+    expect($skill->slug)->toBe('claude-glab-skill')
+        ->and($skill->name)->toBe('Glab Skill')
+        ->and($skill->summary)->toBe('GitLab helpers')
+        ->and($skill->github_url)->toBe('https://github.com/henricook/claude-glab-skill');
 });
 
 test('sync updates existing external skill', function (): void {

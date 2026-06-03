@@ -16,6 +16,12 @@ use ZipArchive;
 class GitHubSkillSync
 {
     /**
+     * Parse a GitHub URL into its components.
+     *
+     * Accepts a tree URL (with optional subdirectory) or a bare repository URL.
+     * A bare repository URL yields an empty branch, signalling that the repo's
+     * default branch should be resolved at fetch time.
+     *
      * @return array{owner: string, repo: string, branch: string, path: string}
      */
     public function parseUrl(string $url): array
@@ -28,7 +34,11 @@ class GitHubSkillSync
             return ['owner' => $m[1], 'repo' => $m[2], 'branch' => $m[3], 'path' => ''];
         }
 
-        throw new \InvalidArgumentException('URL must be a GitHub tree URL: https://github.com/{owner}/{repo}/tree/{branch}[/{path}]');
+        if (preg_match('#^https://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$#', $url, $m)) {
+            return ['owner' => $m[1], 'repo' => $m[2], 'branch' => '', 'path' => ''];
+        }
+
+        throw new \InvalidArgumentException('URL must be a GitHub repository or tree URL: https://github.com/{owner}/{repo}[/tree/{branch}[/{path}]]');
     }
 
     public function import(string $url, ?int $createdByUserId = null, string $visibility = 'public'): Skill
@@ -108,6 +118,10 @@ class GitHubSkillSync
     {
         ['owner' => $owner, 'repo' => $repo, 'branch' => $branch, 'path' => $path] = $parts;
 
+        if ($branch === '') {
+            $branch = $this->resolveDefaultBranch($owner, $repo);
+        }
+
         $tmpDir = $this->downloadAndExtract($owner, $repo, $branch);
 
         try {
@@ -140,6 +154,18 @@ class GitHubSkillSync
         } finally {
             $this->cleanupDir($tmpDir);
         }
+    }
+
+    private function resolveDefaultBranch(string $owner, string $repo): string
+    {
+        $info = $this->apiGet(sprintf('/repos/%s/%s', $owner, $repo));
+        $branch = is_array($info) ? ($info['default_branch'] ?? null) : null;
+
+        if (! is_string($branch) || $branch === '') {
+            throw new RuntimeException(sprintf('Could not determine the default branch for %s/%s.', $owner, $repo));
+        }
+
+        return $branch;
     }
 
     private function downloadAndExtract(string $owner, string $repo, string $branch): string

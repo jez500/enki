@@ -322,7 +322,7 @@ async function deleteSkill() {
                         <input
                             type="url"
                             v-model="githubUrl"
-                            placeholder="https://github.com/owner/repo/tree/main"
+                            placeholder="https://github.com/owner/repo"
                             autocomplete="off"
                         />
                     </label>
@@ -376,7 +376,7 @@ async function deleteSkill() {
                         >
                     </p>
                     <p class="enki-field-hint">
-                        Repo root or subdirectory URL — must contain
+                        Repo, repo root, or subdirectory URL — must contain
                         <code>SKILL.md</code> and optionally
                         <code>skill.yaml</code>.
                     </p>
