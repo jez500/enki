@@ -5,7 +5,26 @@ import EnkiMinimalLayout from '@/layouts/EnkiMinimalLayout.vue';
 import EnkiSettingsLayout from '@/layouts/settings/EnkiLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+// Resolve the app name at runtime from the initial Inertia page props (the
+// shared `name` prop, backed by AppService) so deployments can override
+// APP_NAME without rebuilding. Falls back to the build-time VITE_APP_NAME.
+function resolveAppName(): string {
+    try {
+        const el =
+            document.getElementById('app') ??
+            document.querySelector('[data-page]');
+        const raw = el instanceof HTMLElement ? el.dataset.page : null;
+        const name = raw
+            ? (JSON.parse(raw)?.props?.name as string | undefined)
+            : undefined;
+
+        return name || import.meta.env.VITE_APP_NAME || 'enki';
+    } catch {
+        return import.meta.env.VITE_APP_NAME || 'enki';
+    }
+}
+
+const appName = resolveAppName();
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
