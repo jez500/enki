@@ -3,6 +3,7 @@
 use App\Models\Author;
 use App\Models\Skill;
 use App\Models\User;
+use App\Services\VirtualEnkiSkill;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -201,4 +202,23 @@ test('api skills index total is incremented for virtual enki skill', function ()
         ->getJson('/api/skills')
         ->assertOk()
         ->assertJsonPath('total', 3); // 2 real + 1 virtual
+});
+
+test('platform skill slug, name and install command follow the configured app name', function (): void {
+    config(['app.name' => 'skillhound', 'app.machine_name' => null]);
+
+    $this->actingAs(User::factory()->create());
+
+    // Web skill page resolves under the new slug and exposes the new label.
+    $this->get(route('enki.skill', ['slug' => 'skillhound']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page): Assert => $page
+            ->where('selectedSkill.slug', 'skillhound')
+            ->where('selectedSkill.name', 'skillhound')
+        );
+
+    // Rendered readme uses the new command prefix and not the old one.
+    $summary = app(VirtualEnkiSkill::class)->toWebFull();
+    expect($summary['readmeHtml'])->toContain('/skillhound add');
+    expect($summary['readmeHtml'])->not->toContain('/enki add');
 });

@@ -1,13 +1,13 @@
 ## Quick start
 
-The `enki` skill is installed once via the [Agent Install](/help/agent-install) prompt. After that, it gives your agent the `/enki add` command for all future sessions.
+The `{{ $appSlug }}` skill is installed once via the [Agent Install](/help/agent-install) prompt. After that, it gives your agent the `/{{ $appSlug }} add` command for all future sessions.
 
 ## Adding a skill
 
-Once the enki skill is active, install any library skill by slug:
+Once the {{ $appSlug }} skill is active, install any library skill by slug:
 
 ```
-/enki add coding/code-reviewer
+/{{ $appSlug }} add coding/code-reviewer
 ```
 
 The agent will download, extract, and immediately activate the skill so it's ready to use in the same session.

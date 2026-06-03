@@ -6,8 +6,6 @@ use Illuminate\Support\Str;
 
 class VirtualEnkiSkill
 {
-    public const SLUG = 'enki';
-
     private readonly string $readme;
 
     private readonly string $usage;
@@ -15,11 +13,17 @@ class VirtualEnkiSkill
     /** @var array<string, mixed> */
     private array $meta;
 
-    public function __construct()
+    public function __construct(private readonly AppService $appService)
     {
-        $this->readme = file_get_contents(resource_path('views/skills/enki/readme.blade.php'));
-        $this->usage = file_get_contents(resource_path('views/skills/enki/usage.blade.php'));
+        $vars = ['appName' => $appService->getAppName(), 'appSlug' => $appService->getAppSlug()];
+        $this->readme = view('skills.enki.readme', $vars)->render();
+        $this->usage = view('skills.enki.usage', $vars)->render();
         $this->meta = $this->parseFrontmatter($this->readme);
+    }
+
+    public function slug(): string
+    {
+        return $this->appService->getAppSlug();
     }
 
     /**
@@ -51,8 +55,8 @@ class VirtualEnkiSkill
         if ($filters['q']) {
             $q = strtolower($filters['q']);
             $haystack = strtolower(implode(' ', array_filter([
-                self::SLUG,
-                $this->meta['name'] ?? '',
+                $this->slug(),
+                $this->appService->getAppName(),
                 $this->meta['description'] ?? '',
                 implode(' ', (array) ($this->meta['tags'] ?? [])),
             ])));
@@ -68,8 +72,8 @@ class VirtualEnkiSkill
     public function toWebSummary(): array
     {
         return [
-            'slug' => self::SLUG,
-            'name' => $this->meta['name'] ?? 'Enki',
+            'slug' => $this->slug(),
+            'name' => $this->appService->getAppName(),
             'summary' => $this->meta['description'] ?? '',
             'categories' => [],
             'categoryIcon' => null,
@@ -115,8 +119,8 @@ class VirtualEnkiSkill
     public function toApiSummary(): array
     {
         return [
-            'slug' => self::SLUG,
-            'name' => $this->meta['name'] ?? 'Enki',
+            'slug' => $this->slug(),
+            'name' => $this->appService->getAppName(),
             'summary' => $this->meta['description'] ?? '',
             'categories' => [],
             'author' => 'laravel-boost',
