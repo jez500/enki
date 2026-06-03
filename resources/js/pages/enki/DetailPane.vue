@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 import { formatTitle } from '@/lib/utils';
 import type { EnkiSkill, EnkiAuthor, EnkiTint } from '@/types/enki';
 import Monogram from './Monogram.vue';
