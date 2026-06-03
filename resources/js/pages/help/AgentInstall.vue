@@ -9,6 +9,8 @@ const props = defineProps<{
     docs: { slug: string; title: string }[];
     apiToken: string | null;
     appUrl: string;
+    appName: string;
+    appSlug: string;
 }>();
 
 const token = ref(props.apiToken);
@@ -21,23 +23,23 @@ const prompt = computed(() => {
     const key = token.value ?? '<your-api-key>';
 
     return `\
-You have been granted access to our team's Enki skills library — a curated collection of AI agent skills.
+You have been granted access to our team's ${props.appName} skills library — a curated collection of AI agent skills.
 
-Your first task is to install the enki skill. This skill acts as your gateway to the library: once installed, it will guide you through discovering and installing additional skills in future sessions.
+Your first task is to install the ${props.appSlug} skill. This skill acts as your gateway to the library: once installed, it will guide you through discovering and installing additional skills in future sessions.
 
 Library URL: ${props.appUrl}
 Your API key: ${key}
 
 ## Steps
 
-1. Download the enki skill
+1. Download the ${props.appSlug} skill
 
 Run this command to download the skill archive:
 
 \`\`\`bash
 curl -fsSL \\
   -H "Authorization: Bearer ${key}" \\
-  "${props.appUrl}/api/skills/enki/download" \\
+  "${props.appUrl}/api/skills/${props.appSlug}/download" \\
   -o /tmp/enki.zip
 \`\`\`
 
@@ -46,15 +48,15 @@ curl -fsSL \\
 Extract the archive into your Claude skills directory:
 
 \`\`\`bash
-mkdir -p ~/.claude/skills/enki
-unzip -o /tmp/enki.zip -d ~/.claude/skills/enki
+mkdir -p ~/.claude/skills/${props.appSlug}
+unzip -o /tmp/enki.zip -d ~/.claude/skills/${props.appSlug}
 rm /tmp/enki.zip
 \`\`\`
 
 3. Read and follow the skill
 
 \`\`\`bash
-cat ~/.claude/skills/enki/SKILL.md
+cat ~/.claude/skills/${props.appSlug}/SKILL.md
 \`\`\`
 
 Follow the instructions in SKILL.md carefully. It will explain how to authenticate with the library at ${props.appUrl}, browse available skills, and install them as needed.
@@ -131,9 +133,9 @@ async function regenerateToken() {
                 <p>
                     Copy the prompt below and give it to any AI agent. It will
                     download the
-                    <strong>enki</strong> skill, which in turn allows the agent
-                    to discover and install additional skills from this library
-                    in future sessions.
+                    <strong>{{ props.appName }}</strong> skill, which in turn
+                    allows the agent to discover and install additional skills
+                    from this library in future sessions.
                 </p>
 
                 <h2>Your API Key</h2>
