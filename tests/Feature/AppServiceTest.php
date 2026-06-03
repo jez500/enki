@@ -19,3 +19,8 @@ test('app slug can be overridden independently of the name', function (): void {
     config(['app.name' => 'Skill Hound', 'app.machine_name' => 'sh']);
     expect(app(AppService::class)->getAppSlug())->toBe('sh');
 });
+
+test('app slug falls back to the name slug when machine name is blank', function (): void {
+    config(['app.name' => 'Skill Hound', 'app.machine_name' => '   ']);
+    expect(app(AppService::class)->getAppSlug())->toBe('skill-hound');
+});
