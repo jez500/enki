@@ -20,6 +20,20 @@ test('authenticated users can view the agent install page', function (): void {
             ->where('apiToken', null)
             ->has('docs')
             ->has('appUrl')
+            ->where('appName', 'enki')
+            ->where('appSlug', 'enki')
+        );
+});
+
+test('agent install page reflects the configured app name', function (): void {
+    config(['app.name' => 'skillhound', 'app.machine_name' => null]);
+
+    $this->actingAs($this->user)
+        ->get(route('help.agent-install'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('appName', 'skillhound')
+            ->where('appSlug', 'skillhound')
         );
 });
 

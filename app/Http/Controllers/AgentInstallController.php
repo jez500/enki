@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AppService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -17,6 +18,8 @@ class AgentInstallController extends Controller
             'docs' => HelpController::listDocs(),
             'apiToken' => $user->api_token,
             'appUrl' => config('app.url'),
+            'appName' => app(AppService::class)->getAppName(),
+            'appSlug' => app(AppService::class)->getAppSlug(),
         ]);
     }
 

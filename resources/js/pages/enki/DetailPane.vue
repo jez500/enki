@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { formatTitle } from '@/lib/utils';
 import type { EnkiSkill, EnkiAuthor, EnkiTint } from '@/types/enki';
@@ -16,6 +17,8 @@ const emit = defineEmits<{
     edit: [];
     back: [];
 }>();
+
+const page = usePage();
 
 const tab = ref<'readme' | 'files' | 'usage' | 'changelog'>('readme');
 const copied = ref(false);
@@ -75,7 +78,9 @@ const author = computed(
             skills: 0,
         },
 );
-const installCmd = computed(() => `enki add ${props.skill.slug}`);
+const installCmd = computed(
+    () => `${page.props.machineName} add ${props.skill.slug}`,
+);
 
 const summaryExpanded = ref(false);
 const summaryTruncated = computed(() => props.skill.summary.length > 150);

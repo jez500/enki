@@ -100,7 +100,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
                         />
                     </svg>
                 </div>
-                <span class="enki-brand-name">enki</span>
+                <span class="enki-brand-name">{{ page.props.name }}</span>
                 <span class="enki-brand-sub">skills</span>
             </Link>
 

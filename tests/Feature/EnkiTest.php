@@ -162,3 +162,15 @@ test('skill download returns 404 when the skill has no stored files', function (
 
     $this->get(route('enki.skill.download', ['slug' => 'coding/empty']))->assertNotFound();
 });
+
+test('app name and machine name are shared with the frontend', function (): void {
+    config(['app.name' => 'skillhound', 'app.machine_name' => null]);
+
+    $this->actingAs(User::factory()->create())
+        ->get(route('enki'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('name', 'skillhound')
+            ->where('machineName', 'skillhound')
+        );
+});

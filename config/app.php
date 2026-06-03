@@ -13,7 +13,20 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'enki'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Machine Name
+    |--------------------------------------------------------------------------
+    |
+    | The slug form of the application name, used for machine-readable
+    | identifiers (the platform skill slug and install commands). Defaults to
+    | the slug of the application name; override with APP_MACHINE_NAME.
+    |
+    */
+
+    'machine_name' => env('APP_MACHINE_NAME'),
 
     'version' => (function () {
         $path = base_path('VERSION');

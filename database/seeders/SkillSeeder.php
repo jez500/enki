@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Skill;
+use App\Services\AppService;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Seeder;
 
@@ -12,6 +13,9 @@ class SkillSeeder extends Seeder
 {
     public function run(): void
     {
+        $appName = app(AppService::class)->getAppName();
+        $appSlug = app(AppService::class)->getAppSlug();
+
         $changelog = [
             ['version' => '2.4.1', 'released_on' => '2026-04-22', 'notes' => 'Patch — fix stale cache when context exceeds 8k tokens.'],
             ['version' => '2.4.0', 'released_on' => '2026-04-08', 'notes' => 'Adds streaming mode and per-call telemetry hooks.'],
@@ -36,7 +40,7 @@ class SkillSeeder extends Seeder
 
         $readme = fn (string $name, string $summary): string => "# {$name}\n\n{$summary}\n\n## When to use\n\nReach for this skill when an agent needs to ".strtolower(rtrim($summary, '.'))." as part of a longer task. It's been hardened against the edge cases the team hits most often.\n\n## How it works\n\nThe skill exposes a single `run` entrypoint. You pass it a goal, optional context, and an output schema. Internally it plans, gathers, executes, and self-checks.\n\nOutputs are deterministic with `temperature: 0` by default. Override per-call if you want exploration.\n\n## Inputs\n\n- **goal** — Plain-language description of what to produce.\n- **context** — Array of strings or file refs the skill should consider.\n- **schema** — Optional JSON schema for structured output.\n\n## Outputs\n\nA structured object matching your schema, plus a `trace` array of intermediate reasoning steps.\n\n## Notes\n\nThis skill is internal-only. Do not bundle it into externally-shipped agents without sign-off from the owning team.";
 
-        $usage = fn (string $slug): string => "## Quick start\n\nDrop into your agent runtime:\n\n```bash\nenki add {$slug}\n```\n\nThen call it from any agent definition:\n\n```yaml\nskills:\n  - {$slug}@latest\n```\n\n## Programmatic\n\n```ts\nimport { runSkill } from \"@enki/runtime\";\n\nconst result = await runSkill(\"{$slug}\", {\n  goal: \"your goal here\",\n  context: [\"doc-ref-1\", \"doc-ref-2\"],\n});\n```\n\n## Pinning a version\n\nLock to a specific version when you need reproducibility:\n\n```yaml\nskills:\n  - {$slug}@2.4.1\n```\n";
+        $usage = fn (string $slug, string $appSlug): string => "## Quick start\n\nDrop into your agent runtime:\n\n```bash\n{$appSlug} add {$slug}\n```\n\nThen call it from any agent definition:\n\n```yaml\nskills:\n  - {$slug}@latest\n```\n\n## Programmatic\n\n```ts\nimport { runSkill } from \"@{$appSlug}/runtime\";\n\nconst result = await runSkill(\"{$slug}\", {\n  goal: \"your goal here\",\n  context: [\"doc-ref-1\", \"doc-ref-2\"],\n});\n```\n\n## Pinning a version\n\nLock to a specific version when you need reproducibility:\n\n```yaml\nskills:\n  - {$slug}@2.4.1\n```\n";
 
         $updatedAt = fn (string $relative): CarbonInterface => match ($relative) {
             'today' => now()->startOfDay(),
@@ -89,7 +93,7 @@ class SkillSeeder extends Seeder
                     'monogram_tint' => $s['monogram_tint'],
                     'tags' => $s['tags'],
                     'readme' => $readme($s['name'], $s['summary']),
-                    'usage' => $usage($s['slug']),
+                    'usage' => $usage($s['slug'], $appSlug),
                     'updated_at' => $updatedAt($s['updated']),
                 ]
             );
@@ -108,14 +112,14 @@ class SkillSeeder extends Seeder
 
         // ── Enki skill (real downloadable skill, not demo data) ──────────────
 
-        $enkiSkillMd = view('skills.enki.readme')->render();
-        $enkiUsage = view('skills.enki.usage')->render();
+        $enkiSkillMd = view('skills.enki.readme', ['appName' => $appName, 'appSlug' => $appSlug])->render();
+        $enkiUsage = view('skills.enki.usage', ['appName' => $appName, 'appSlug' => $appSlug])->render();
 
         $enkiSkill = Skill::updateOrCreate(
-            ['slug' => 'enki'],
+            ['slug' => $appSlug],
             [
-                'name' => 'Enki',
-                'summary' => 'Install skills from the library by name. Gives your agent the `/enki add` command.',
+                'name' => $appName,
+                'summary' => "Install skills from the library by name. Gives your agent the `/{$appSlug} add` command.",
                 'author_id' => $authors['platform'],
                 'version' => '1.0.0',
                 'installs' => 0,

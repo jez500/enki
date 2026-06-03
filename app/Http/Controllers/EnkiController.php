@@ -7,6 +7,7 @@ use App\Models\Author;
 use App\Models\Category;
 use App\Models\Skill;
 use App\Models\SkillChangelogEntry;
+use App\Services\AppService;
 use App\Services\GitHubSkillSync;
 use App\Services\SkillArchiveParser;
 use App\Services\SkillContent;
@@ -234,10 +235,10 @@ class EnkiController extends Controller
 
     public function download(string $slug): BinaryFileResponse
     {
-        if ($slug === VirtualEnkiSkill::SLUG) {
+        if ($slug === app(AppService::class)->getAppSlug()) {
             $tmpPath = app(VirtualEnkiSkill::class)->buildZipPath();
 
-            return response()->download($tmpPath, 'enki.zip', [
+            return response()->download($tmpPath, app(AppService::class)->getAppSlug().'.zip', [
                 'Content-Type' => 'application/zip',
             ])->deleteFileAfterSend();
         }
@@ -309,7 +310,7 @@ class EnkiController extends Controller
 
     public function apiShow(string $slug): JsonResponse
     {
-        if ($slug === VirtualEnkiSkill::SLUG) {
+        if ($slug === app(AppService::class)->getAppSlug()) {
             return response()->json(app(VirtualEnkiSkill::class)->toApiFull());
         }
 
@@ -336,7 +337,7 @@ class EnkiController extends Controller
         $user = auth()->user();
         $filters = $this->parseFilters();
 
-        if ($slug === VirtualEnkiSkill::SLUG) {
+        if ($slug === app(AppService::class)->getAppSlug()) {
             return Inertia::render('Enki', array_merge($this->sharedProps($user, $filters), [
                 'selectedSkill' => app(VirtualEnkiSkill::class)->toWebFull(),
             ]));

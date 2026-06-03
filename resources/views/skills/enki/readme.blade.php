@@ -1,13 +1,13 @@
 ---
-name: enki
-description: "Install skills from the Enki library. Activate when the user runs `/enki add {slug}`, `/enki search`, `/enki list`, `/enki info`, or `/enki categories` — or asks to install, discover, or browse skills."
+name: {{ $appSlug }}
+description: "Install skills from the {{ $appName }} library. Activate when the user runs `/{{ $appSlug }} add {slug}`, `/{{ $appSlug }} search`, `/{{ $appSlug }} list`, `/{{ $appSlug }} info`, or `/{{ $appSlug }} categories` — or asks to install, discover, or browse skills."
 version: 1.0.0
 tags: [skills, install, library]
 ---
 
-# Enki
+# {{ $appName }}
 
-Your gateway to the team's AI skills library. Use the `/enki` sub-commands below to discover, browse, and install skills.
+Your gateway to the team's AI skills library. Use the `/{{ $appSlug }}` sub-commands below to discover, browse, and install skills.
 
 ## First-Time Setup
 
@@ -26,7 +26,7 @@ Replace the placeholder values with the URL and token from your install prompt.
 
 ---
 
-## /enki add `<slug>`
+## /{{ $appSlug }} add `<slug>`
 
 Downloads and installs a skill from the library.
 
@@ -60,7 +60,7 @@ Read the SKILL.md so the new skill is immediately active, then confirm to the us
 
 ---
 
-## /enki list
+## /{{ $appSlug }} list
 
 Lists all available skills. Supports optional filtering.
 
@@ -118,9 +118,9 @@ curl -fsSL \
 
 ---
 
-## /enki search `<query>`
+## /{{ $appSlug }} search `<query>`
 
-Searches the library by keyword. Shorthand for `/enki list` with a `q` parameter.
+Searches the library by keyword. Shorthand for `/{{ $appSlug }} list` with a `q` parameter.
 
 ```bash
 curl -fsSL \
@@ -128,11 +128,11 @@ curl -fsSL \
   "$ENKI_URL/api/skills?q=<query>" | jq '.data[] | {slug, name, summary}'
 ```
 
-Present results as a numbered list with slug, name, and summary so the user can choose which to install with `/enki add <slug>`.
+Present results as a numbered list with slug, name, and summary so the user can choose which to install with `/{{ $appSlug }} add <slug>`.
 
 ---
 
-## /enki info `<slug>`
+## /{{ $appSlug }} info `<slug>`
 
 Shows the full readme and usage instructions for a skill without installing it.
 
@@ -166,7 +166,7 @@ Display the `readme` content to the user as formatted markdown.
 
 ---
 
-## /enki categories
+## /{{ $appSlug }} categories
 
 Lists all available skill categories so the user can browse by topic.
 
@@ -185,7 +185,7 @@ curl -fsSL \
 ]
 ```
 
-After listing categories, offer to run `/enki list` filtered by the chosen category.
+After listing categories, offer to run `/{{ $appSlug }} list` filtered by the chosen category.
 
 ---
 

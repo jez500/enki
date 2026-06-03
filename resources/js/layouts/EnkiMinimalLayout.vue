@@ -87,7 +87,7 @@ const isAdmin = computed(() => authUser.value?.role === 'admin');
                         />
                     </svg>
                 </div>
-                <span class="enki-brand-name">enki</span>
+                <span class="enki-brand-name">{{ page.props.name }}</span>
             </Link>
             <nav class="enki-topnav">
                 <DropdownMenu v-if="userInitials">

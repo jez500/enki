@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AppService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -39,7 +40,8 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => app(AppService::class)->getAppName(),
+            'machineName' => app(AppService::class)->getAppSlug(),
             'appVersion' => config('app.version'),
             'auth' => [
                 'user' => $request->user(),
