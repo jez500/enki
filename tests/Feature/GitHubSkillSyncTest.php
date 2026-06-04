@@ -234,6 +234,28 @@ test('import endpoint calls sync service and returns skill', function (): void {
         ->assertJsonPath('githubUrl', $url);
 });
 
+test('import endpoint accepts a bare repo url', function (): void {
+    Http::fake([
+        'https://api.github.com/repos/henricook/claude-glab-skill' => Http::response(['default_branch' => 'main']),
+        'https://github.com/henricook/claude-glab-skill/archive/refs/heads/main.zip' => Http::response(
+            fakeRepoZip('claude-glab-skill-main', [
+                'SKILL.md' => "---\nname: Glab Skill\ndescription: GitLab helpers\n---\n\nReadme body.",
+            ]),
+            200,
+            ['Content-Type' => 'application/zip'],
+        ),
+        'https://api.github.com/repos/henricook/claude-glab-skill/commits*' => Http::response(fakeCommits()),
+    ]);
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson('/enki/skills/import', ['github_url' => 'https://github.com/henricook/claude-glab-skill'])
+        ->assertOk()
+        ->assertJsonPath('name', 'Glab Skill')
+        ->assertJsonPath('isExternal', true);
+});
+
 test('sync endpoint updates and returns skill', function (): void {
     stubGitHubApis();
 

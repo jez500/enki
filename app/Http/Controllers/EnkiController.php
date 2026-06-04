@@ -116,7 +116,7 @@ class EnkiController extends Controller
     public function import(Request $request): JsonResponse
     {
         $request->validate([
-            'github_url' => ['required', 'url', 'regex:#^https://github\.com/[^/]+/[^/]+/tree/.+#'],
+            'github_url' => ['required', 'url', 'regex:#^https://github\.com/[^/]+/[^/]+(?:/tree/.+|(?:\.git)?/?)$#'],
             'visibility' => ['nullable', 'in:public,private'],
         ]);
 
