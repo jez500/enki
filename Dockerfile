@@ -14,6 +14,7 @@ RUN composer install \
 # ─── Stage 2: Frontend assets ─────────────────────────────────────────────────
 # Uses PHP as base so `php artisan wayfinder:generate` works during npm build.
 # Installs dev dependencies (laravel/boost etc.) needed for artisan to boot.
+# ext-sockets is only needed by pest-plugin-browser, which never runs here.
 FROM jez500/enki-base:frontend-builder AS frontend
 
 WORKDIR /app
@@ -23,7 +24,8 @@ RUN composer install \
     --optimize-autoloader \
     --no-scripts \
     --no-interaction \
-    --prefer-dist
+    --prefer-dist \
+    --ignore-platform-req=ext-sockets
 
 # PHP app files needed for artisan to boot
 COPY artisan artisan
