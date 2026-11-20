@@ -1,7 +1,8 @@
 # ─── Base image: PHP builder (composer installs) ──────────────────────────────
-# PHP 8.3.36 fixes CVE-2026-109618 and CVE-2026-109619 (PHP2Shell).
-# Keep both FROM lines on the same patch release, 8.3.36 or later.
-FROM php:8.3.36-alpine AS php-builder
+# PHP 8.3.37 fixes the Nov 2026 PHP release CVEs (CVE-2026-115560,
+# CVE-2026-126714, CVE-2026-129481 and others). 8.3.36 fixed PHP2Shell.
+# Keep both FROM lines on the same patch release, 8.3.37 or later.
+FROM php:8.3.37-alpine AS php-builder
 
 RUN apk add --no-cache sqlite-dev libzip-dev oniguruma-dev mariadb-dev unzip \
     && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring bcmath zip
@@ -16,7 +17,7 @@ RUN apk add --no-cache nodejs npm
 
 # ─── Base image: Runtime (PHP-FPM + nginx + supervisor) ───────────────────────
 # Copies pre-compiled extensions from php-builder to avoid QEMU compilation.
-FROM php:8.3.36-fpm-alpine AS runtime
+FROM php:8.3.37-fpm-alpine AS runtime
 
 RUN apk add --no-cache \
         nginx \
@@ -49,6 +50,10 @@ RUN { \
 } > /usr/local/etc/php/conf.d/security.ini
 
 # Fail the build if the runtime PHP is older than the patched release.
-RUN php -r 'exit(version_compare(PHP_VERSION, "8.3.36", "<") ? 1 : 0);'
+RUN php -r 'exit(version_compare(PHP_VERSION, "8.3.37", "<") ? 1 : 0);'
+
+# Fail the build if nginx is older than 1.30.7 (NGINX2root, CVE-2026-123633,
+# CVE-2026-123007 and others). Alpine 3.24 ships nginx 1.30.7-r0 or later.
+RUN apk version -t "$(apk info -v | sed -n 's/^nginx-\([0-9].*\)/\1/p')" 1.30.7-r0 | grep -qv '<'
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
